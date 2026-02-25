@@ -6,317 +6,237 @@
 <title>MoneyHero - Personal Loan Approval Odds Prototype</title>
 <style>
   /* ── Password Gate ───────────────────────────── */
-  #password-gate {
-    position: fixed; inset: 0; z-index: 9999;
-    background: #1a1a2e;
-    display: flex; align-items: center; justify-content: center;
-  }
-  #password-gate.hidden { display: none; }
-  .gate-box {
-    background: #fff; border-radius: 16px; padding: 40px 36px; text-align: center;
-    box-shadow: 0 8px 32px rgba(0,0,0,.3); max-width: 380px; width: 90%;
-  }
-  .gate-box h2 { font-size: 18px; color: #333; margin-bottom: 6px; }
-  .gate-box p { font-size: 13px; color: #888; margin-bottom: 24px; }
-  .gate-box input {
-    width: 100%; padding: 12px 16px; border: 2px solid #ddd; border-radius: 8px;
-    font-size: 15px; text-align: center; outline: none; transition: border .2s;
-  }
-  .gate-box input:focus { border-color: #00b7b2; }
-  .gate-box input.error { border-color: #ef4444; animation: shake .3s; }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-  .gate-box button {
-    margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 8px;
-    background: #00b7b2; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; transition: background .2s;
-  }
-  .gate-box button:hover { background: #009e99; }
-  .gate-error { color: #ef4444; font-size: 12px; margin-top: 8px; min-height: 18px; }
-  #app-content { display: none; }
-  #app-content.visible { display: block; }
+  #password-gate { position:fixed; inset:0; z-index:9999; background:#1a1a2e; display:flex; align-items:center; justify-content:center; }
+  #password-gate.hidden { display:none; }
+  .gate-box { background:#fff; border-radius:16px; padding:40px 36px; text-align:center; box-shadow:0 8px 32px rgba(0,0,0,.3); max-width:380px; width:90%; }
+  .gate-box h2 { font-size:18px; color:#333; margin-bottom:6px; }
+  .gate-box p { font-size:13px; color:#888; margin-bottom:24px; }
+  .gate-box input { width:100%; padding:12px 16px; border:2px solid #ddd; border-radius:8px; font-size:15px; text-align:center; outline:none; transition:border .2s; }
+  .gate-box input:focus { border-color:#00b7b2; }
+  .gate-box input.error { border-color:#ef4444; animation:shake .3s; }
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .gate-box button { margin-top:16px; width:100%; padding:12px; border:none; border-radius:8px; background:#00b7b2; color:#fff; font-size:15px; font-weight:600; cursor:pointer; }
+  .gate-box button:hover { background:#009e99; }
+  .gate-error { color:#ef4444; font-size:12px; margin-top:8px; min-height:18px; }
+  #app-content { display:none; }
+  #app-content.visible { display:block; }
 
   /* ── Reset & Base ────────────────────────────── */
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "PingFang HK", sans-serif; background: #f5f5f5; color: #333; font-size: 14px; line-height: 1.5; }
-  a { text-decoration: none; color: inherit; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang HK",sans-serif;background:#f5f5f5;color:#333;font-size:14px;line-height:1.5}
+  a{text-decoration:none;color:inherit}
+  img{display:block;max-width:100%}
 
-  /* ── State Toggle Bar ────────────────────────── */
-  .proto-controls {
-    position: sticky; top: 0; z-index: 1000;
-    background: #1a1a2e; color: #fff; padding: 10px 24px;
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  }
-  .proto-controls span.label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: .6; }
-  .proto-controls .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-  .proto-controls .divider { width: 1px; height: 28px; background: rgba(255,255,255,.2); margin: 0 4px; }
-  .proto-controls button {
-    padding: 6px 14px; border: 2px solid rgba(255,255,255,.3); border-radius: 6px;
-    background: transparent; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s;
-  }
-  .proto-controls button:hover { border-color: #fff; }
-  .proto-controls button.active { background: #fff; color: #1a1a2e; border-color: #fff; }
-  .proto-controls button.device-btn { padding: 6px 10px; font-size: 14px; }
+  /* ── Proto Controls ──────────────────────────── */
+  .proto-controls{position:sticky;top:0;z-index:1000;background:#1a1a2e;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .proto-controls .plabel{font-size:10px;text-transform:uppercase;letter-spacing:.8px;opacity:.5}
+  .proto-controls .btn-group{display:flex;gap:6px}
+  .proto-controls button{padding:6px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:5px;background:transparent;color:#fff;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .proto-controls button:hover{border-color:#fff}
+  .proto-controls button.active{background:#fff;color:#1a1a2e;border-color:#fff}
 
   /* ── Header ──────────────────────────────────── */
-  .header { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { font-size: 22px; font-weight: 800; }
-  .logo .money { color: #333; }
-  .logo .hero { color: #00b7b2; }
-  .header-nav { display: flex; gap: 24px; font-size: 14px; color: #555; }
-  .header-nav a:hover { color: #00b7b2; }
+  .site-header{background:#fff;border-bottom:1px solid #e0e0e0;padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
+  .site-header .logo-img{height:28px}
+  .hamburger{font-size:22px;color:#333;cursor:pointer;display:none}
+  .user-icon{width:32px;height:32px;border-radius:50%;background:#f0f0f0;display:none;align-items:center;justify-content:center;font-size:16px;color:#888;cursor:pointer}
+  .header-nav{display:flex;gap:20px;font-size:14px;color:#555}
+  .header-nav a:hover{color:#00b7b2}
+  .header-nav .active-link{font-weight:700;color:#00b7b2}
 
   /* ── Hero ─────────────────────────────────────── */
-  .hero { background: linear-gradient(135deg, #00b7b2 0%, #009e99 100%); color: #fff; padding: 40px 24px; text-align: center; }
-  .hero h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-  .hero p { font-size: 15px; opacity: .9; max-width: 600px; margin: 0 auto; }
+  .hero{background:linear-gradient(135deg,#00b7b2 0%,#009e99 100%);color:#fff;padding:36px 20px;text-align:center}
+  .hero h1{font-size:24px;font-weight:700;margin-bottom:6px}
+  .hero p{font-size:14px;opacity:.9;max-width:600px;margin:0 auto}
 
   /* ── Container ───────────────────────────────── */
-  .container { max-width: 1080px; margin: 0 auto; padding: 24px 16px; }
+  .container{max-width:1080px;margin:0 auto;padding:20px 16px}
 
-  /* ── Approval Odds Banner ────────────────────── */
-  .odds-banner {
-    border-radius: 10px; padding: 16px 20px; margin-bottom: 20px;
-    display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500;
-    animation: slideDown .3s ease;
-  }
-  @keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
-  .odds-banner .icon { font-size: 20px; flex-shrink: 0; }
-  .odds-banner a { font-weight: 600; text-decoration: underline; cursor: pointer; }
-  .odds-banner.fresh { background: #e6f9f0; border: 1px solid #b2ecd3; color: #1a6b44; }
-  .odds-banner.stale { background: #fff7e6; border: 1px solid #ffe0a3; color: #7a5c1f; }
-  .odds-banner.guest { background: #e8f0fe; border: 1px solid #b3cef7; color: #1a3f7a; }
+  /* ── Odds Banner ─────────────────────────────── */
+  .odds-banner{border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;animation:slideDown .3s ease}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+  .odds-banner .icon{font-size:18px;flex-shrink:0}
+  .odds-banner a{font-weight:600;text-decoration:underline;cursor:pointer}
+  .odds-banner.fresh{background:#e6f9f0;border:1px solid #b2ecd3;color:#1a6b44}
+  .odds-banner.stale{background:#fff7e6;border:1px solid #ffe0a3;color:#7a5c1f}
+  .odds-banner.guest{background:#e8f0fe;border:1px solid #b3cef7;color:#1a3f7a}
 
-  /* ── Category Tabs ───────────────────────────── */
-  .tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
-  .tab {
-    flex-shrink: 0; padding: 8px 16px; border-radius: 20px;
-    background: #fff; border: 1px solid #ddd; font-size: 13px; color: #555; cursor: pointer; white-space: nowrap; transition: all .15s;
-  }
-  .tab:hover { border-color: #00b7b2; color: #00b7b2; }
-  .tab.active { background: #00b7b2; color: #fff; border-color: #00b7b2; }
+  /* ── Tabs ─────────────────────────────────────── */
+  .tabs{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex-shrink:0;padding:8px 16px;border-radius:20px;background:#fff;border:1px solid #ddd;font-size:13px;color:#555;cursor:pointer;white-space:nowrap;transition:all .15s}
+  .tab:hover{border-color:#00b7b2;color:#00b7b2}
+  .tab.active{background:#00b7b2;color:#fff;border-color:#00b7b2}
 
-  /* ── Results Summary ─────────────────────────── */
-  .results-info { font-size: 13px; color: #777; margin-bottom: 16px; }
-  .results-info strong { color: #333; }
+  /* ── Loan Calculator ─────────────────────────── */
+  .calc-row{display:flex;gap:12px;margin-bottom:18px}
+  .calc-field{flex:1}
+  .calc-field label{font-size:12px;color:#777;display:flex;align-items:center;gap:4px;margin-bottom:4px}
+  .calc-field label .info-sm{width:14px;height:14px;border-radius:50%;border:1px solid #bbb;display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#999}
+  .calc-field input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:15px;font-weight:600;color:#333;background:#fff}
+
+  /* ── Results ──────────────────────────────────── */
+  .results-info{font-size:13px;color:#777;margin-bottom:12px}
+  .results-info strong{color:#333}
 
   /* ── Product Table ───────────────────────────── */
-  .product-table { width: 100%; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .product-table{width:100%;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  .table-header{display:grid;grid-template-columns:2.2fr .9fr .7fr .7fr .8fr .95fr .75fr;padding:12px 16px;background:#fafafa;border-bottom:2px solid #eee;font-size:11px;font-weight:600;color:#888;align-items:center}
+  .table-header>div{padding:0 4px}
+  .col-odds-header{display:flex;align-items:center;gap:4px;color:#e67e00;font-weight:700}
+  .col-odds-header .info-icon{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid #e67e00;font-size:9px;cursor:pointer;position:relative}
+  .info-icon .tooltip{display:none;position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:400;letter-spacing:0;width:240px;line-height:1.5;white-space:normal;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .info-icon .tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#333}
+  .info-icon:hover .tooltip{display:block}
 
-  .table-header {
-    display: grid;
-    grid-template-columns: 2.2fr .9fr .7fr .7fr .7fr .95fr .8fr;
-    padding: 14px 16px; background: #fafafa; border-bottom: 2px solid #eee;
-    font-size: 11px; font-weight: 600; color: #888; letter-spacing: .3px; align-items: center;
-  }
-  .table-header > div { padding: 0 4px; }
+  /* ── Product Row (Desktop) ───────────────────── */
+  .product-row{display:grid;grid-template-columns:2.2fr .9fr .7fr .7fr .8fr .95fr .75fr;padding:14px 16px;border-bottom:1px solid #f0f0f0;align-items:center;transition:background .15s}
+  .product-row:hover{background:#fafcff}
+  .product-row>div{padding:0 4px}
 
-  .col-odds-header { display: flex; align-items: center; gap: 4px; color: #e67e00; font-weight: 700; }
-  .col-odds-header .info-icon {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid #e67e00;
-    font-size: 9px; cursor: pointer; position: relative;
-  }
-  .info-icon .tooltip {
-    display: none; position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
-    background: #333; color: #fff; padding: 10px 14px; border-radius: 8px;
-    font-size: 12px; font-weight: 400; letter-spacing: 0;
-    width: 240px; line-height: 1.5; white-space: normal; z-index: 100;
-    box-shadow: 0 4px 12px rgba(0,0,0,.2);
-  }
-  .info-icon .tooltip::after { content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%); border:6px solid transparent; border-top-color:#333; }
-  .info-icon:hover .tooltip { display: block; }
+  .provider{display:flex;align-items:center;gap:10px}
+  .provider-logo{width:56px;height:56px;border-radius:8px;border:1px solid #eee;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#fff;padding:4px}
+  .provider-logo img{width:100%;height:100%;object-fit:contain}
+  .provider-name{font-size:13px;font-weight:600;color:#222;line-height:1.3}
+  .provider-tag{display:inline-block;font-size:10px;color:#fff;background:#e67e00;border-radius:3px;padding:1px 6px;margin-top:2px;font-weight:600}
+  .provider-tag.tax{background:#0072aa} .provider-tag.fast{background:#8e24aa} .provider-tag.exclusive{background:#d32f2f} .provider-tag.balance{background:#00695c}
+  .provider-reward{font-size:11px;color:#e67e00;margin-top:2px}
+  .row-expand{font-size:11px;color:#0066cc;cursor:pointer;margin-top:2px;display:inline-flex;align-items:center;gap:3px}
+  .row-expand:hover{text-decoration:underline}
 
-  /* ── Product Row ─────────────────────────────── */
-  .product-row {
-    display: grid;
-    grid-template-columns: 2.2fr .9fr .7fr .7fr .7fr .95fr .8fr;
-    padding: 14px 16px; border-bottom: 1px solid #f0f0f0; align-items: center; transition: background .15s;
-  }
-  .product-row:hover { background: #fafcff; }
-  .product-row > div { padding: 0 4px; }
+  .cell{font-size:13px}
+  .cell .value{font-weight:700;color:#222;font-size:14px}
+  .cell .label{font-size:10px;color:#999;margin-top:1px}
 
-  /* Provider cell */
-  .provider { display: flex; align-items: center; gap: 10px; }
-  .provider-logo {
-    width: 44px; height: 44px; border-radius: 8px; border: 1px solid #eee;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 8px; font-weight: 700; color: #fff; flex-shrink: 0; text-align: center; line-height: 1.1;
-    overflow: hidden;
-  }
-  .provider-name { font-size: 13px; font-weight: 600; color: #222; line-height: 1.3; }
-  .provider-tag {
-    display: inline-block; font-size: 10px; color: #fff; background: #e67e00; border-radius: 3px;
-    padding: 1px 6px; margin-top: 3px; font-weight: 600;
-  }
-  .provider-tag.tax { background: #0072aa; }
-  .provider-tag.fast { background: #8e24aa; }
-  .provider-tag.exclusive { background: #d32f2f; }
-  .provider-tag.balance { background: #00695c; }
-  .provider-reward { font-size: 11px; color: #e67e00; margin-top: 3px; display: flex; align-items: center; gap: 3px; }
-  .row-expand { font-size: 11px; color: #0066cc; cursor: pointer; margin-top: 3px; display: inline-flex; align-items: center; gap: 3px; }
-  .row-expand:hover { text-decoration: underline; }
+  .btn-apply{padding:9px 14px;border-radius:6px;border:2px solid #e67e00;background:#fff;color:#e67e00;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;text-align:center;white-space:nowrap}
+  .btn-apply:hover{background:#e67e00;color:#fff}
 
-  /* Data cells */
-  .cell { font-size: 13px; }
-  .cell .value { font-weight: 700; color: #222; font-size: 15px; }
-  .cell .label { font-size: 10px; color: #999; margin-top: 1px; }
+  /* ── Odds Cell ───────────────────────────────── */
+  .odds-cell{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .odds-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.3px}
+  .odds-badge.high{background:#e6f9f0;color:#15803d}
+  .odds-badge.high::before{content:'';width:7px;height:7px;border-radius:50%;background:#22c55e}
+  .odds-badge.medium{background:#fff7e6;color:#a16207}
+  .odds-badge.medium::before{content:'';width:7px;height:7px;border-radius:50%;background:#eab308}
+  .odds-badge.low{background:#fef2f2;color:#b91c1c}
+  .odds-badge.low::before{content:'';width:7px;height:7px;border-radius:50%;background:#ef4444}
+  .odds-signin{font-size:11px;color:#0066cc;font-weight:600;cursor:pointer;text-decoration:underline;text-align:center;padding:4px 0}
+  .odds-stale-label{font-size:9px;color:#a16207;margin-top:1px}
 
-  /* Apply button */
-  .btn-apply {
-    padding: 9px 14px; border-radius: 6px; border: 2px solid #e67e00;
-    background: #fff; color: #e67e00; font-size: 13px; font-weight: 700;
-    cursor: pointer; transition: all .15s; text-align: center; white-space: nowrap;
-  }
-  .btn-apply:hover { background: #e67e00; color: #fff; }
+  /* ── Expandable Detail ───────────────────────── */
+  .product-detail{max-height:0;overflow:hidden;transition:max-height .3s ease;border-bottom:1px solid #f0f0f0}
+  .product-detail.open{max-height:500px}
+  .product-detail-inner{padding:0 16px 16px}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .detail-section{background:#f8f9fa;border-radius:8px;padding:12px 14px}
+  .detail-section-title{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+  .detail-section p{font-size:12px;color:#666;line-height:1.6}
+  .detail-section .updated{font-size:11px;color:#999;margin-bottom:4px}
+  .detail-section .refresh-link{color:#0066cc;font-weight:600;cursor:pointer}
+  .detail-odds-value{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 
-  /* ── Approval Odds Cell ──────────────────────── */
-  .odds-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .odds-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; letter-spacing: .3px;
-  }
-  .odds-badge.high { background: #e6f9f0; color: #15803d; }
-  .odds-badge.high::before { content:''; width:7px; height:7px; border-radius:50%; background:#22c55e; }
-  .odds-badge.medium { background: #fff7e6; color: #a16207; }
-  .odds-badge.medium::before { content:''; width:7px; height:7px; border-radius:50%; background:#eab308; }
-  .odds-badge.low { background: #fef2f2; color: #b91c1c; }
-  .odds-badge.low::before { content:''; width:7px; height:7px; border-radius:50%; background:#ef4444; }
-  .odds-signin { font-size: 11px; color: #0066cc; font-weight: 600; cursor: pointer; text-decoration: underline; text-align: center; padding: 4px 0; }
-  .odds-signin:hover { color: #004499; }
-  .odds-stale-label { font-size: 9px; color: #a16207; margin-top: 1px; }
-
-  /* ── Expandable Product Detail ───────────────── */
-  .product-detail { max-height: 0; overflow: hidden; transition: max-height .3s ease; border-bottom: 1px solid #f0f0f0; }
-  .product-detail.open { max-height: 400px; }
-  .product-detail-inner { padding: 0 16px 16px; }
-  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .detail-section { background: #f8f9fa; border-radius: 8px; padding: 12px 14px; }
-  .detail-section-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
-  .detail-section-title .chevron { font-size: 10px; color: #888; }
-  .detail-section p { font-size: 12px; color: #666; line-height: 1.6; }
-  .detail-section .updated { font-size: 11px; color: #999; margin-bottom: 4px; }
-  .detail-section .refresh-link { color: #0066cc; font-weight: 600; cursor: pointer; }
-  .detail-section .refresh-link:hover { text-decoration: underline; }
-  .detail-odds-value { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  /* ── Desktop hidden elements ─────────────────── */
+  .m-only{display:none !important}
 
   /* ── Footer ──────────────────────────────────── */
-  .footer { text-align: center; padding: 40px 24px; font-size: 12px; color: #999; }
+  .footer{text-align:center;padding:32px 16px;font-size:11px;color:#aaa}
 
-  /* ── Mobile Frame (for desktop preview) ───────── */
-  .mobile-frame {
-    display: none; justify-content: center; padding: 32px 16px; background: #e8e8e8; min-height: calc(100vh - 44px);
-  }
-  .mobile-frame.active { display: flex; }
-  .mobile-frame-inner {
-    width: 390px; max-height: 844px; overflow-y: auto; overflow-x: hidden;
-    background: #f5f5f5; border-radius: 40px; box-shadow: 0 12px 48px rgba(0,0,0,.25);
-    border: 8px solid #1a1a1a; position: relative;
-  }
-  .mobile-frame-inner .header { padding: 10px 16px; }
-  .mobile-frame-inner .hero { padding: 24px 16px; }
-  .mobile-frame-inner .hero h1 { font-size: 18px; }
-  .mobile-frame-inner .hero p { font-size: 13px; }
-  .mobile-frame-inner .container { padding: 16px 12px; }
-  .mobile-frame-inner .header-nav { display: none; }
-  .mobile-frame-inner .tabs { gap: 6px; }
-  .mobile-frame-inner .tab { padding: 6px 12px; font-size: 12px; }
-  .mobile-frame-inner .odds-banner { padding: 12px 14px; font-size: 13px; margin-bottom: 14px; }
-  .mobile-frame-inner .results-info { font-size: 12px; margin-bottom: 12px; }
-  .mobile-frame-inner .table-header { display: none !important; }
-  .mobile-frame-inner .footer { padding: 24px 12px; }
-  .mobile-frame-inner .footer p { font-size: 10px; }
+  /* ═══════════════════════════════════════════════
+     MOBILE ≤ 768px
+     ═══════════════════════════════════════════════ */
+  @media(max-width:768px){
+    .m-only{display:flex !important}
+    .d-only{display:none !important}
+    .hamburger{display:block}
+    .user-icon{display:flex}
+    .header-nav{display:none}
+    .site-header{padding:10px 16px}
+    .site-header .logo-img{height:24px}
 
-  /* ── Mobile Product Card ─────────────────────── */
-  .mobile-frame-inner .product-row,
-  .is-mobile .product-row {
-    display: flex !important; flex-direction: column; gap: 0;
-    padding: 14px; border-bottom: 1px solid #f0f0f0;
-    grid-template-columns: unset !important;
-  }
-  .mobile-frame-inner .product-row > div,
-  .is-mobile .product-row > div { padding: 0 !important; }
+    .hero{padding:24px 16px;text-align:left}
+    .hero h1{font-size:20px}
+    .hero p{font-size:13px}
+    .container{padding:16px 12px}
+    .odds-banner{padding:12px 14px;font-size:13px;margin-bottom:14px;border-radius:8px}
+    .tab{padding:7px 14px;font-size:12px}
 
-  /* Card top: provider + odds badge */
-  .mobile-frame-inner .product-row .provider,
-  .is-mobile .product-row .provider { margin-bottom: 10px; }
-  .mobile-frame-inner .provider-name,
-  .is-mobile .provider-name { font-size: 13px; }
+    /* Table header becomes 3-col scrollable */
+    .table-header{display:none}
+    .product-table{border-radius:8px;overflow-x:auto}
 
-  /* Odds row on mobile — sits right under provider */
-  .mobile-frame-inner .product-row .odds-cell,
-  .is-mobile .product-row .odds-cell {
-    flex-direction: row; align-items: center; gap: 6px;
-    padding: 8px 0 !important; margin-bottom: 4px;
-    border-top: 1px dashed #eee; border-bottom: 1px dashed #eee;
-  }
-  .mobile-frame-inner .odds-cell::before,
-  .is-mobile .odds-cell::before {
-    content: '批核機會'; font-size: 11px; color: #888; font-weight: 600;
-  }
-
-  /* Stats grid: 2x2 */
-  .m-stats {
-    display: none; grid-template-columns: 1fr 1fr; gap: 8px;
-    margin: 8px 0;
-  }
-  .mobile-frame-inner .m-stats,
-  .is-mobile .m-stats { display: grid !important; }
-  .m-stat { background: #f8f9fa; border-radius: 6px; padding: 8px 10px; }
-  .m-stat .label { font-size: 10px; color: #888; margin-bottom: 2px; }
-  .m-stat .value { font-size: 14px; font-weight: 700; color: #222; }
-  .m-stat .value.reward-val { color: #e67e00; }
-
-  /* Hide desktop-only cells on mobile */
-  .mobile-frame-inner .product-row .cell,
-  .is-mobile .product-row .cell { display: none !important; }
-  .mobile-frame-inner .product-row .cell[style],
-  .is-mobile .product-row .cell[style] { display: none !important; }
-
-  /* Full-width apply button on mobile */
-  .mobile-frame-inner .product-row > div:last-child,
-  .is-mobile .product-row > div:last-child { text-align: center !important; margin-top: 8px; }
-  .mobile-frame-inner .btn-apply,
-  .is-mobile .btn-apply { width: 100%; padding: 11px; font-size: 14px; }
-
-  /* Mobile detail */
-  .mobile-frame-inner .detail-grid,
-  .is-mobile .detail-grid { grid-template-columns: 1fr; }
-  .mobile-frame-inner .product-detail.open,
-  .is-mobile .product-detail.open { max-height: 500px; }
-
-  /* ── True small-screen responsive ────────────── */
-  @media (max-width: 640px) {
-    .table-header { display: none !important; }
-    .product-row {
-      display: flex !important; flex-direction: column; gap: 0;
-      padding: 14px; grid-template-columns: unset !important;
+    /* ── Mobile Product Row ──────────────────── */
+    .product-row{
+      display:grid !important;
+      grid-template-columns:72px 1fr auto !important;
+      gap:0 10px;
+      padding:12px;
+      align-items:center;
     }
-    .product-row > div { padding: 0 !important; }
-    .product-row .provider { margin-bottom: 10px; }
-    .product-row .odds-cell {
-      flex-direction: row; align-items: center; gap: 6px;
-      padding: 8px 0 !important; margin-bottom: 4px;
-      border-top: 1px dashed #eee; border-bottom: 1px dashed #eee;
+    .product-row>div{padding:0 !important}
+
+    /* Logo: row 1-3, col 1 */
+    .product-row .provider{
+      grid-column:1;grid-row:1/3;
+      flex-direction:column;gap:4px;align-items:center;
     }
-    .odds-cell::before { content: '批核機會'; font-size: 11px; color: #888; font-weight: 600; }
-    .m-stats { display: grid !important; }
-    .product-row .cell { display: none !important; }
-    .product-row .cell[style] { display: none !important; }
-    .product-row > div:last-child { text-align: center !important; margin-top: 8px; }
-    .btn-apply { width: 100%; padding: 11px; font-size: 14px; }
-    .detail-grid { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 18px; }
-    .hero { padding: 24px 16px; }
-    .header-nav { display: none; }
-    .container { padding: 16px 12px; }
-    .odds-banner { padding: 12px 14px; font-size: 13px; }
-    .proto-controls { padding: 8px 12px; gap: 8px; }
-    .proto-controls button { padding: 5px 10px; font-size: 11px; }
+    .provider-logo{width:56px;height:56px;border-radius:8px}
+    .provider .provider-info{display:none}
+    .provider-reward,.provider-tag,.row-expand{display:none}
+    .provider-name{font-size:12px;text-align:center;line-height:1.2}
+
+    /* Product name: col 2, row 1 */
+    .m-product-name{
+      grid-column:2;grid-row:1;
+      font-size:14px;font-weight:600;color:#222;line-height:1.3;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    }
+
+    /* Odds badge: col 2, row 2 */
+    .odds-cell{
+      grid-column:2;grid-row:2;
+      flex-direction:row !important;align-items:center;gap:6px;
+      padding:4px 0 !important;
+    }
+
+    /* Apply button: col 3, row 1-2 */
+    .m-apply-col{
+      grid-column:3;grid-row:1/3;
+      display:flex;align-items:center;
+    }
+    .m-apply-col .btn-apply{padding:8px 12px;font-size:12px;white-space:nowrap}
+
+    /* Hide desktop-only cells */
+    .cell{display:none !important}
+    .d-apply{display:none !important}
+
+    /* Mobile detail */
+    .detail-grid{grid-template-columns:1fr}
+    .product-detail-inner{padding:0 12px 12px}
+
+    /* Expandable row detail trigger */
+    .m-expand-trigger{
+      grid-column:1/4;grid-row:3;
+      font-size:11px;color:#0066cc;cursor:pointer;padding-top:6px;
+      border-top:1px dashed #eee;margin-top:6px;
+      display:flex;align-items:center;gap:4px;
+    }
+    .m-expand-trigger:hover{text-decoration:underline}
+  }
+
+  /* ═══ Small phones ═══ */
+  @media(max-width:400px){
+    .hero h1{font-size:18px}
+    .provider-logo{width:48px;height:48px}
+    .product-row{grid-template-columns:60px 1fr auto !important;gap:0 8px;padding:10px}
+    .m-product-name{font-size:13px}
+    .proto-controls{padding:8px 10px;gap:6px}
+    .proto-controls button{padding:5px 8px;font-size:10px}
   }
 </style>
 </head>
 <body>
 
-<!-- ── Password Gate ────────────────────────────── -->
+<!-- Password Gate -->
 <div id="password-gate">
   <div class="gate-box">
     <h2>Prototype Access</h2>
@@ -329,272 +249,190 @@
 
 <div id="app-content">
 
-<!-- ── Prototype State Switcher ─────────────────── -->
+<!-- Proto Controls -->
 <div class="proto-controls">
-  <span class="label">State:</span>
+  <span class="plabel">State:</span>
   <div class="btn-group">
-    <button class="active" onclick="setState('fresh', this)">Up-to-date</button>
-    <button onclick="setState('stale', this)">Stale</button>
-    <button onclick="setState('guest', this)">Not Logged In</button>
-  </div>
-  <div class="divider"></div>
-  <span class="label">Device:</span>
-  <div class="btn-group">
-    <button class="device-btn active" onclick="setDevice('desktop', this)" title="Desktop">&#128187;</button>
-    <button class="device-btn" onclick="setDevice('mobile', this)" title="Mobile">&#128241;</button>
+    <button class="active" onclick="setState('fresh',this)">Up-to-date</button>
+    <button onclick="setState('stale',this)">Stale</button>
+    <button onclick="setState('guest',this)">Not Logged In</button>
   </div>
 </div>
 
-<!-- ═══ Desktop View ═══ -->
-<div id="desktop-view">
-  <div class="header">
-    <div class="logo"><span class="money">Money</span><span class="hero">Hero</span></div>
-    <div class="header-nav">
-      <a href="#">信用卡</a>
-      <a href="#" style="font-weight:700;color:#00b7b2;">私人貸款</a>
-      <a href="#">保險</a>
-      <a href="#">按揭</a>
-      <a href="#">銀行戶口</a>
-    </div>
+<!-- Header -->
+<div class="site-header">
+  <div class="hamburger m-only">&#9776;</div>
+  <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
+  <div class="header-nav d-only">
+    <a href="#">信用卡</a>
+    <a href="#" class="active-link">私人貸款</a>
+    <a href="#">保險</a>
+    <a href="#">按揭</a>
+    <a href="#">銀行戶口</a>
   </div>
-  <div class="hero">
-    <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
-    <p>比較香港 50+ 間銀行及財務公司私人貸款，找出最低利息及最高回贈</p>
-  </div>
-  <div class="container">
-    <div class="odds-banner fresh banner-fresh"><span class="icon">&#10003;</span><div>您的批核機會評估已更新 &nbsp;·&nbsp; 根據您最新的信貸報告計算</div></div>
-    <div class="odds-banner stale banner-stale" style="display:none;"><span class="icon">&#9888;</span><div>您的批核機會評估已過期。<a href="#">登入 Credit Hero Club 以更新</a></div></div>
-    <div class="odds-banner guest banner-guest" style="display:none;"><span class="icon">&#128274;</span><div>免費查閱信貸報告，即睇您的批核機會。<a href="#">立即登入 Credit Hero Club</a></div></div>
-    <div class="tabs">
-      <div class="tab active">全部貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">稅季貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div><div class="tab">免文件貸款</div><div class="tab">業主貸款</div>
-    </div>
-    <div class="results-info ri">顯示 <strong>59</strong> 個貸款產品，按批核機會排序</div>
-    <div class="product-table">
-      <div class="table-header">
-        <div>銀行 / 財務公司</div><div>每月還款</div><div>總利息支出</div><div>實際年利率</div>
-        <div class="col-odds-header">批核機會 <span class="info-icon">&#9432;<span class="tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</span></span></div>
-        <div>MoneyHero 獨家優惠</div><div></div>
-      </div>
-      <div class="product-list-container"></div>
-    </div>
-    <div class="footer">
-      <p>Prototype — CHC Approval Odds MVP &nbsp;|&nbsp; MoneyHero HK Personal Loan &nbsp;|&nbsp; 2026-02-25</p>
-      <p style="margin-top:4px;">States: Up-to-date / Stale / Not Logged In &nbsp;·&nbsp; Toggle via bar above</p>
-    </div>
-  </div>
+  <div class="user-icon m-only">&#128100;</div>
 </div>
 
-<!-- ═══ Mobile Frame View ═══ -->
-<div class="mobile-frame" id="mobile-view">
-  <div class="mobile-frame-inner">
-    <div class="header">
-      <div class="logo"><span class="money">Money</span><span class="hero">Hero</span></div>
-      <div class="header-nav">
-        <a href="#">信用卡</a>
-        <a href="#" style="font-weight:700;color:#00b7b2;">私人貸款</a>
-        <a href="#">保險</a>
-      </div>
+<!-- Hero -->
+<div class="hero">
+  <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
+  <p>比較香港 50+ 間銀行及財務公司私人貸款，找出最低利息及最高回贈</p>
+</div>
+
+<div class="container">
+
+  <!-- Banners -->
+  <div class="odds-banner fresh banner-el" data-state="fresh"><span class="icon">&#10003;</span><div>您的批核機會評估已更新 · 根據您最新的信貸報告計算</div></div>
+  <div class="odds-banner stale banner-el" data-state="stale" style="display:none"><span class="icon">&#9888;</span><div>您的批核機會評估已過期。<a href="#">登入 Credit Hero Club 以更新</a></div></div>
+  <div class="odds-banner guest banner-el" data-state="guest" style="display:none"><span class="icon">&#128274;</span><div>免費查閱信貸報告，即睇您的批核機會。<a href="#">立即登入 Credit Hero Club</a></div></div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active">全部貸款</div><div class="tab">&#128196; 稅季貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div><div class="tab">免文件貸款</div><div class="tab">業主貸款</div>
+  </div>
+
+  <!-- Loan Calculator -->
+  <div class="calc-row">
+    <div class="calc-field">
+      <label>貸款額 (HK$) <span class="info-sm">i</span></label>
+      <input type="text" value="200,000" readonly>
     </div>
-    <div class="hero">
-      <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
-      <p>比較香港 50+ 間銀行及財務公司私人貸款</p>
+    <div class="calc-field">
+      <label>還款期 (月) <span class="info-sm">i</span></label>
+      <input type="text" value="24" readonly>
     </div>
-    <div class="container">
-      <div class="odds-banner fresh banner-fresh"><span class="icon">&#10003;</span><div>您的批核機會評估已更新</div></div>
-      <div class="odds-banner stale banner-stale" style="display:none;"><span class="icon">&#9888;</span><div>批核機會已過期。<a href="#">登入 CHC 更新</a></div></div>
-      <div class="odds-banner guest banner-guest" style="display:none;"><span class="icon">&#128274;</span><div>免費查閱信貸報告，即睇批核機會。<a href="#">登入 CHC</a></div></div>
-      <div class="tabs">
-        <div class="tab active">全部</div><div class="tab">&#11088; 精選</div><div class="tab">&#127970; 銀行</div><div class="tab">&#127974; 財務</div><div class="tab">稅季</div><div class="tab">結餘轉戶</div>
-      </div>
-      <div class="results-info ri">顯示 <strong>59</strong> 個產品</div>
-      <div class="product-table">
-        <div class="product-list-container"></div>
-      </div>
-      <div class="footer">
-        <p>Prototype — CHC Approval Odds MVP</p>
-      </div>
+  </div>
+
+  <div class="results-info ri">顯示 <strong>59</strong> 個貸款產品，按批核機會排序</div>
+
+  <!-- Product Table -->
+  <div class="product-table">
+    <div class="table-header d-only">
+      <div>銀行 / 財務公司</div><div>每月還款</div><div>總利息支出</div><div>實際年利率</div>
+      <div class="col-odds-header">批核機會 <span class="info-icon">&#9432;<span class="tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</span></span></div>
+      <div>MoneyHero 獨家</div><div></div>
     </div>
+    <div id="product-list"></div>
+  </div>
+
+  <div class="footer">
+    <p>Prototype — CHC Approval Odds MVP | MoneyHero HK | 2026-02-25</p>
   </div>
 </div>
 
 </div><!-- /app-content -->
 
 <script>
-  // ── Password Gate ──
-  function simpleHash(s) {
-    let h = 0;
-    for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
-    return (h >>> 0).toString(16).padStart(8, '0');
+  // ── Auth ──
+  function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0}return(h>>>0).toString(16).padStart(8,'0')}
+  const EXPECTED=simpleHash('chc-moneyhero');
+  function checkPassword(){
+    const input=document.getElementById('gate-input'),err=document.getElementById('gate-error');
+    if(simpleHash(input.value)===EXPECTED){document.getElementById('password-gate').classList.add('hidden');document.getElementById('app-content').classList.add('visible');sessionStorage.setItem('proto-auth','1')}
+    else{input.classList.add('error');err.textContent='Incorrect password';setTimeout(()=>{input.classList.remove('error');err.textContent=''},1500)}
   }
-  const EXPECTED = simpleHash('chc-moneyhero');
-  function checkPassword() {
-    const input = document.getElementById('gate-input');
-    const err = document.getElementById('gate-error');
-    if (simpleHash(input.value) === EXPECTED) {
-      document.getElementById('password-gate').classList.add('hidden');
-      document.getElementById('app-content').classList.add('visible');
-      sessionStorage.setItem('proto-auth', '1');
-    } else {
-      input.classList.add('error');
-      err.textContent = 'Incorrect password';
-      setTimeout(() => { input.classList.remove('error'); err.textContent = ''; }, 1500);
-    }
-  }
-  document.addEventListener('DOMContentLoaded', () => {
-    if (sessionStorage.getItem('proto-auth') === '1') {
-      document.getElementById('password-gate').classList.add('hidden');
-      document.getElementById('app-content').classList.add('visible');
-    }
-    document.getElementById('gate-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+  document.addEventListener('DOMContentLoaded',()=>{
+    if(sessionStorage.getItem('proto-auth')==='1'){document.getElementById('password-gate').classList.add('hidden');document.getElementById('app-content').classList.add('visible')}
+    document.getElementById('gate-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword()});
     renderProducts();
   });
 
-  // ── Product Data (from live moneyhero.com.hk/zh/personal-loan 2026-02-25) ──
-  const products = [
-    { id: 0, name: 'Citi 特快現金私人貸款', provider: '花旗銀行', logo: 'Citi', logoColor: '#003b70', monthly: 'HK$8,459', interest: 'HK$3,024', apr: '1.40%', fee: 'HK$0', reward: 'HK$6,088', tag: '全城最高優惠', tagClass: 'exclusive', odds: 'high' },
-    { id: 1, name: 'WeLend 私人貸款', provider: 'WeLend', logo: 'WeLend', logoColor: '#e8395a', monthly: 'HK$8,495', interest: 'HK$3,888', apr: '1.00%', fee: 'HK$0', reward: 'HK$3,600', tag: '全城最高優惠', tagClass: 'exclusive', odds: 'high' },
-    { id: 2, name: '渣打銀行 私人貸款', provider: '渣打銀行', logo: 'SC', logoColor: '#0072aa', monthly: 'HK$8,499', interest: 'HK$3,984', apr: '1.85%', fee: 'HK$0', reward: 'HK$3,000', tag: '0%手續費', tagClass: '', odds: 'medium' },
-    { id: 3, name: '【全年0息】i-Money 網上錢私人貸款', provider: '亞洲聯合財務', logo: 'UA', logoColor: '#1a237e', monthly: 'HK$8,333', interest: 'HK$0', apr: '0.00%', fee: '免手續費', reward: 'HK$800', tag: '全年0息', tagClass: '', odds: 'medium' },
-    { id: 4, name: 'OCBC 華僑銀行「零息稅貸」稅務貸款', provider: '華僑銀行', logo: 'OCBC', logoColor: '#d32f2f', monthly: 'HK$8,573', interest: 'HK$0', apr: '1.38%', fee: 'HK$5,760', reward: 'HK$5,888', tag: '稅季貸款', tagClass: 'tax', odds: 'low' },
-    { id: 5, name: '安信 定額私人貸款', provider: '安信信貸', logo: '安信', logoColor: '#8e24aa', monthly: 'HK$8,433', interest: 'HK$2,400', apr: '1.18%', fee: 'HK$0', reward: 'HK$18,000', tag: '急救之選', tagClass: 'fast', odds: 'high' },
-    { id: 6, name: '信銀國際 $mart Plus 分期貸款 (稅季優惠)', provider: '中信銀行（國際）', logo: 'CITIC', logoColor: '#00695c', monthly: 'HK$8,373', interest: 'HK$960', apr: '1.38%', fee: 'HK$2,000', reward: 'HK$2,388', tag: '稅季貸款', tagClass: 'tax', odds: 'low' },
-    { id: 7, name: '邦民 特快低息貸款', provider: '邦民日本財務', logo: 'Promise', logoColor: '#ff6f00', monthly: 'HK$8,433', interest: 'HK$2,400', apr: '1.12%', fee: 'HK$0', reward: 'HK$4,000', tag: '特快批核', tagClass: 'fast', odds: 'high' },
-    { id: 8, name: '中銀分期「易達錢」- 税季貸款', provider: '中國銀行（香港）', logo: 'BOC', logoColor: '#cc0000', monthly: 'HK$8,457', interest: 'HK$2,976', apr: '1.38%', fee: 'HK$0', reward: 'HK$16,888', tag: '稅季貸款', tagClass: 'tax', odds: 'medium' },
-    { id: 9, name: '星展銀行 「貸易清」私人貸款', provider: '星展銀行', logo: 'DBS', logoColor: '#e21a1a', monthly: 'HK$8,553', interest: 'HK$5,280', apr: '6.38%', fee: 'HK$0', reward: 'HK$4,188', tag: '結餘轉戶', tagClass: 'balance', odds: 'medium' },
-    { id: 10, name: '建行(亞洲)「好現金」私人分期貸款', provider: '中國建設銀行（亞洲）', logo: 'CCB', logoColor: '#003399', monthly: 'HK$8,478', interest: 'HK$3,470', apr: '1.50%', fee: 'HK$0', reward: 'HK$3,500', tag: '稅季貸款', tagClass: 'tax', odds: 'high' },
-    { id: 11, name: '東亞銀行稅季貸款', provider: '東亞銀行', logo: 'BEA', logoColor: '#0055a5', monthly: 'HK$8,423', interest: 'HK$2,160', apr: '1.00%', fee: 'HK$0', reward: 'HK$14,387', tag: '稅季貸款', tagClass: 'tax', odds: 'high' },
-    { id: 12, name: 'WeLab Bank 私人分期貸款 (稅季適用)', provider: '匯立銀行', logo: 'WeLab', logoColor: '#6c3cbe', monthly: 'HK$8,493', interest: 'HK$3,840', apr: '0.65%', fee: 'HK$0', reward: 'HK$1,000', tag: '稅季貸款', tagClass: 'tax', odds: 'medium' },
-    { id: 13, name: 'CreFIT 現金貸', provider: 'CreFIT維信', logo: 'CreFIT', logoColor: '#ff5722', monthly: 'HK$8,453', interest: 'HK$2,875', apr: '1.38%', fee: 'HK$0', reward: 'HK$23,200', tag: '特快批核', tagClass: 'fast', odds: 'high' },
-    { id: 14, name: 'ZA Bank 分期貸款 – 稅季優惠', provider: '眾安銀行', logo: 'ZA', logoColor: '#ff6b00', monthly: 'HK$8,450', interest: 'HK$2,803', apr: '1.30%', fee: 'HK$0', reward: 'HK$4,000', tag: '稅季貸款', tagClass: 'tax', odds: 'medium' },
-    { id: 15, name: '滙豐稅季分期「萬應錢」', provider: 'HSBC 滙豐', logo: 'HSBC', logoColor: '#db0011', monthly: 'HK$8,873', interest: 'HK$12,960', apr: '6.28%', fee: 'HK$0', reward: 'HK$1,100', tag: '稅季貸款', tagClass: 'tax', odds: 'low' },
-    { id: 16, name: '大新 交稅「快應錢」', provider: '大新銀行', logo: '大新', logoColor: '#e53935', monthly: 'HK$8,556', interest: 'HK$5,352', apr: '1.18%', fee: 'HK$0', reward: 'HK$1,200', tag: '稅季貸款', tagClass: 'tax', odds: 'medium' },
-    { id: 17, name: 'Cashing Pro 特快私人貸款', provider: 'Cashing Pro', logo: 'CP', logoColor: '#37474f', monthly: 'HK$8,733', interest: 'HK$9,600', apr: '4.40%', fee: 'HK$0', reward: 'HK$1,500', tag: '特快批核', tagClass: 'fast', odds: 'high' },
-    { id: 18, name: 'MONEY RICH 特快私人貸款', provider: '致富財務', logo: 'MR', logoColor: '#c69500', monthly: 'HK$8,513', interest: 'HK$4,301', apr: '1.98%', fee: 'HK$0', reward: 'HK$800', tag: '特快批核', tagClass: 'fast', odds: 'medium' },
-    { id: 19, name: 'Mox「即時借」(稅季適用)(新客戶)', provider: 'Mox', logo: 'Mox', logoColor: '#ff3366', monthly: 'HK$8,447', interest: 'HK$2,736', apr: '1.18%', fee: 'HK$0', reward: 'HK$1,000', tag: '稅季貸款', tagClass: 'tax', odds: 'medium' },
+  // ── Data ──
+  const CDN='https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/';
+  const products=[
+    {id:0,name:'Citi 特快現金私人貸款',logo:CDN+'xsmall_bltd5bc304e27d1f2ec_2daddc24b3.webp',monthly:'HK$8,459',interest:'HK$3,024',apr:'1.40%',fee:'HK$0',reward:'HK$6,088',tag:'全城最高優惠',tagClass:'exclusive',odds:'high'},
+    {id:1,name:'WeLend 私人貸款',logo:CDN+'xsmall_blta2b1c7656f55bafa_2cd3613af9.webp',monthly:'HK$8,495',interest:'HK$3,888',apr:'1.00%',fee:'HK$0',reward:'HK$3,600',tag:'全城最高優惠',tagClass:'exclusive',odds:'high'},
+    {id:2,name:'渣打銀行 私人貸款',logo:CDN+'xsmall_blt79d486a21f7098a1_824ca9b71f.webp',monthly:'HK$8,499',interest:'HK$3,984',apr:'1.85%',fee:'HK$0',reward:'HK$3,000',tag:'0%手續費',tagClass:'',odds:'medium'},
+    {id:3,name:'【全年0息】i-Money 網上錢私人貸款',logo:CDN+'xsmall_bltd2365780e022fcf3_5333673be3.webp',monthly:'HK$8,333',interest:'HK$0',apr:'0.00%',fee:'免手續費',reward:'HK$800',tag:'全年0息',tagClass:'',odds:'medium'},
+    {id:4,name:'OCBC 華僑銀行「零息稅貸」稅務貸款',logo:CDN+'large_blt23057d4748878759_590c2706f9.webp',monthly:'HK$8,573',interest:'HK$0',apr:'1.38%',fee:'HK$5,760',reward:'HK$5,888',tag:'稅季貸款',tagClass:'tax',odds:'low'},
+    {id:5,name:'安信 定額私人貸款',logo:CDN+'xsmall_blt4351440a848723f8_4955301d54.webp',monthly:'HK$8,433',interest:'HK$2,400',apr:'1.18%',fee:'HK$0',reward:'HK$18,000',tag:'急救之選',tagClass:'fast',odds:'high'},
+    {id:6,name:'信銀國際 $mart Plus 分期貸款 (稅季優惠)',logo:CDN+'large_CNCBI_b1b80c54d9.jpeg',monthly:'HK$8,373',interest:'HK$960',apr:'1.38%',fee:'HK$2,000',reward:'HK$2,388',tag:'稅季貸款',tagClass:'tax',odds:'low'},
+    {id:7,name:'邦民 特快低息貸款',logo:CDN+'xlarge_blt85d396e2e90b641d_88c6c1e85e.webp',monthly:'HK$8,433',interest:'HK$2,400',apr:'1.12%',fee:'HK$0',reward:'HK$4,000',tag:'特快批核',tagClass:'fast',odds:'high'},
+    {id:8,name:'中銀分期「易達錢」- 税季貸款',logo:CDN+'Provider_Bank_of_China_Type_Banking_e9e9564c7b.svg',monthly:'HK$8,457',interest:'HK$2,976',apr:'1.38%',fee:'HK$0',reward:'HK$16,888',tag:'稅季貸款',tagClass:'tax',odds:'medium'},
+    {id:9,name:'星展銀行 「貸易清」私人貸款',logo:CDN+'xsmall_bltd52f9e43a0153b83_f3fa3017e3.webp',monthly:'HK$8,553',interest:'HK$5,280',apr:'6.38%',fee:'HK$0',reward:'HK$4,188',tag:'結餘轉戶',tagClass:'balance',odds:'medium'},
+    {id:10,name:'建行(亞洲)「好現金」私人分期貸款',logo:CDN+'xsmall_blt906eac307edaeae8_ed7f9df17e.webp',monthly:'HK$8,478',interest:'HK$3,470',apr:'1.50%',fee:'HK$0',reward:'HK$3,500',tag:'稅季貸款',tagClass:'tax',odds:'high'},
+    {id:11,name:'東亞銀行稅季貸款',logo:CDN+'small_blt8f59f362edfcf530_71e5830954.webp',monthly:'HK$8,423',interest:'HK$2,160',apr:'1.00%',fee:'HK$0',reward:'HK$14,387',tag:'稅季貸款',tagClass:'tax',odds:'high'},
+    {id:12,name:'WeLab Bank 私人分期貸款 (稅季適用)',logo:CDN+'xsmall_Welab_bank_65a067a7aa.webp',monthly:'HK$8,493',interest:'HK$3,840',apr:'0.65%',fee:'HK$0',reward:'HK$1,000',tag:'稅季貸款',tagClass:'tax',odds:'medium'},
+    {id:13,name:'CreFIT 現金貸',logo:CDN+'xlarge_blt9b38cc40f974e6de_213f8726eb.webp',monthly:'HK$8,453',interest:'HK$2,875',apr:'1.38%',fee:'HK$0',reward:'HK$23,200',tag:'特快批核',tagClass:'fast',odds:'high'},
+    {id:14,name:'ZA Bank 分期貸款 – 稅季優惠',logo:CDN+'xsmall_blt4c2232b1c100bbe4_d2ba2cf7e2.webp',monthly:'HK$8,450',interest:'HK$2,803',apr:'1.30%',fee:'HK$0',reward:'HK$4,000',tag:'稅季貸款',tagClass:'tax',odds:'medium'},
+    {id:15,name:'滙豐稅季分期「萬應錢」',logo:CDN+'small_blt75b294817c4dec42_311ad151c0.webp',monthly:'HK$8,873',interest:'HK$12,960',apr:'6.28%',fee:'HK$0',reward:'HK$1,100',tag:'稅季貸款',tagClass:'tax',odds:'low'},
+    {id:16,name:'大新 交稅「快應錢」',logo:CDN+'medium_bltfe73bbbcb1ba871a_bbee0a1f7d.webp',monthly:'HK$8,556',interest:'HK$5,352',apr:'1.18%',fee:'HK$0',reward:'HK$1,200',tag:'稅季貸款',tagClass:'tax',odds:'medium'},
+    {id:17,name:'Cashing Pro 特快私人貸款',logo:CDN+'xlarge_bltffc6528b94c7bbae_3b2fd5a591.webp',monthly:'HK$8,733',interest:'HK$9,600',apr:'4.40%',fee:'HK$0',reward:'HK$1,500',tag:'特快批核',tagClass:'fast',odds:'high'},
+    {id:18,name:'MONEY RICH 特快私人貸款',logo:CDN+'small_moneyrichimage_b3b31be7ad.webp',monthly:'HK$8,513',interest:'HK$4,301',apr:'1.98%',fee:'HK$0',reward:'HK$800',tag:'特快批核',tagClass:'fast',odds:'medium'},
+    {id:19,name:'Mox「即時借」(稅季適用)(新客戶)',logo:CDN+'xsmall_blt2f45e9de76f69207_44602c5f27.webp',monthly:'HK$8,447',interest:'HK$2,736',apr:'1.18%',fee:'HK$0',reward:'HK$1,000',tag:'稅季貸款',tagClass:'tax',odds:'medium'},
   ];
 
-  let currentState = 'fresh';
-  let currentDevice = 'desktop';
+  let currentState='fresh';
 
-  function productHTML(p, prefix) {
-    return `
-      <div class="product-row" id="${prefix}-row-${p.id}">
+  function renderProducts(){
+    const list=document.getElementById('product-list');
+    list.innerHTML=products.map(p=>`
+      <div class="product-row" id="row-${p.id}">
         <div class="provider">
-          <div class="provider-logo" style="background:${p.logoColor};">${p.logo}</div>
-          <div>
+          <div class="provider-logo"><img src="${p.logo}" alt="" loading="lazy"></div>
+          <div class="provider-info d-only">
             <div class="provider-name">${p.name}</div>
-            ${p.tag ? `<span class="provider-tag ${p.tagClass}">${p.tag}</span>` : ''}
+            ${p.tag?`<span class="provider-tag ${p.tagClass}">${p.tag}</span>`:''}
             <div class="provider-reward">&#127873; 高達 ${p.reward} 獎賞</div>
-            <span class="row-expand" onclick="toggleDetail('${prefix}-detail-${p.id}')">查看詳情 &#9662;</span>
+            <span class="row-expand" onclick="toggleDetail('detail-${p.id}')">查看詳情 &#9662;</span>
           </div>
         </div>
-        <div class="cell"><div class="value">${p.monthly}</div><div class="label">每月還款</div></div>
-        <div class="cell"><div class="value">${p.interest}</div><div class="label">總利息</div></div>
-        <div class="cell"><div class="value">${p.apr}</div><div class="label">實際年利率</div></div>
-        <div class="odds-cell" id="${prefix}-odds-${p.id}"></div>
-        <!-- Mobile stats grid (hidden on desktop, shown on mobile) -->
-        <div class="m-stats">
-          <div class="m-stat"><div class="label">每月還款</div><div class="value">${p.monthly}</div></div>
-          <div class="m-stat"><div class="label">實際年利率</div><div class="value">${p.apr}</div></div>
-          <div class="m-stat"><div class="label">總利息支出</div><div class="value">${p.interest}</div></div>
-          <div class="m-stat"><div class="label">MoneyHero 獨家</div><div class="value reward-val">${p.reward}</div></div>
-        </div>
-        <div class="cell" style="text-align:center;"><div class="value" style="color:#e67e00;font-size:14px;">${p.reward}</div><div class="label">MoneyHero 獨家</div></div>
-        <div style="text-align:right;"><button class="btn-apply">立即申請</button></div>
+        <div class="m-product-name m-only">${p.name}</div>
+        <div class="cell d-only"><div class="value">${p.monthly}</div><div class="label">每月還款</div></div>
+        <div class="cell d-only"><div class="value">${p.interest}</div><div class="label">總利息</div></div>
+        <div class="cell d-only"><div class="value">${p.apr}</div><div class="label">實際年利率</div></div>
+        <div class="odds-cell" id="odds-${p.id}"></div>
+        <div class="cell d-only" style="text-align:center"><div class="value" style="color:#e67e00;font-size:14px">${p.reward}</div><div class="label">MoneyHero 獨家</div></div>
+        <div class="d-apply d-only" style="text-align:right"><button class="btn-apply">立即申請</button></div>
+        <div class="m-apply-col m-only"><button class="btn-apply">立即申請</button></div>
+        <div class="m-expand-trigger m-only" onclick="toggleDetail('detail-${p.id}')">查看詳情 &#9662;</div>
       </div>
-      <div class="product-detail" id="${prefix}-detail-${p.id}">
+      <div class="product-detail" id="detail-${p.id}">
         <div class="product-detail-inner"><div class="detail-grid">
           <div class="detail-section">
             <div class="detail-section-title">貸款詳情</div>
-            <p>每月還款：${p.monthly}<br>總利息支出：${p.interest}<br>實際年利率：${p.apr}<br>手續費：${p.fee}</p>
+            <p>每月還款：${p.monthly}<br>總利息支出：${p.interest}<br>實際年利率：${p.apr}<br>手續費：${p.fee}<br>MoneyHero 獨家：<span style="color:#e67e00;font-weight:700">${p.reward}</span></p>
           </div>
-          <div class="detail-section" id="${prefix}-detail-odds-${p.id}"></div>
+          <div class="detail-section" id="detail-odds-${p.id}"></div>
         </div></div>
-      </div>`;
+      </div>
+    `).join('');
+    updateOdds();
   }
 
-  function renderProducts() {
-    document.querySelectorAll('.product-list-container').forEach((list, idx) => {
-      const prefix = idx === 0 ? 'd' : 'm';
-      list.innerHTML = products.map(p => productHTML(p, prefix)).join('');
+  function updateOdds(){
+    products.forEach(p=>{
+      const cell=document.getElementById(`odds-${p.id}`);
+      const detail=document.getElementById(`detail-odds-${p.id}`);
+      if(!cell||!detail)return;
+      const o=p.odds,cap=o[0].toUpperCase()+o.slice(1);
+      if(currentState==='fresh'){
+        cell.innerHTML=`<span class="odds-badge ${o}">${cap}</span>`;
+        detail.innerHTML=`<div class="detail-section-title">批核機會</div><div class="detail-odds-value"><span class="odds-badge ${o}">${cap}</span></div><p class="updated">最後更新：2026年2月25日</p><p>批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
+      }else if(currentState==='stale'){
+        cell.innerHTML=`<span class="odds-badge ${o}" style="opacity:.6">${cap}</span><span class="odds-stale-label">已過期</span>`;
+        detail.innerHTML=`<div class="detail-section-title">批核機會</div><div class="detail-odds-value"><span class="odds-badge ${o}" style="opacity:.6">${cap}</span></div><p class="updated">最後更新：2025年11月12日</p><p><span class="refresh-link">登入 Credit Hero Club 以更新您的批核機會。</span></p><p style="margin-top:6px">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
+      }else{
+        cell.innerHTML=`<span class="odds-signin">登入查看</span>`;
+        detail.innerHTML=`<div class="detail-section-title">批核機會</div><div class="detail-odds-value" style="color:#888">批核機會：？</div><p><span class="refresh-link">免費查閱信貸報告以了解您的批核機會</span></p><p style="margin-top:6px">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
+      }
+    });
+  }
+
+  function setState(state,btn){
+    currentState=state;
+    btn.closest('.btn-group').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.banner-el').forEach(el=>{el.style.display=el.dataset.state===state?'flex':'none'});
+    document.querySelectorAll('.ri').forEach(el=>{
+      if(state==='fresh')el.innerHTML='顯示 <strong>59</strong> 個貸款產品，按批核機會排序';
+      else if(state==='stale')el.innerHTML='顯示 <strong>59</strong> 個貸款產品，按批核機會排序 <span style="color:#a16207">（數據已過期）</span>';
+      else el.innerHTML='顯示 <strong>59</strong> 個貸款產品';
     });
     updateOdds();
   }
 
-  function updateOdds() {
-    ['d','m'].forEach(prefix => {
-      products.forEach(p => {
-        const cell = document.getElementById(`${prefix}-odds-${p.id}`);
-        const detail = document.getElementById(`${prefix}-detail-odds-${p.id}`);
-        if (!cell || !detail) return;
-        const odds = p.odds;
-        const cap = odds.charAt(0).toUpperCase() + odds.slice(1);
-
-        if (currentState === 'fresh') {
-          cell.innerHTML = `<span class="odds-badge ${odds}">${cap}</span>`;
-          detail.innerHTML = `
-            <div class="detail-section-title">批核機會 <span class="chevron">&#9650;</span></div>
-            <div class="detail-odds-value"><span class="odds-badge ${odds}">${cap}</span></div>
-            <p class="updated">最後更新：2026年2月25日</p>
-            <p>批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
-        } else if (currentState === 'stale') {
-          cell.innerHTML = `<span class="odds-badge ${odds}" style="opacity:.6;">${cap}</span><span class="odds-stale-label">已過期</span>`;
-          detail.innerHTML = `
-            <div class="detail-section-title">批核機會 <span class="chevron">&#9650;</span></div>
-            <div class="detail-odds-value"><span class="odds-badge ${odds}" style="opacity:.6;">${cap}</span></div>
-            <p class="updated">最後更新：2025年11月12日</p>
-            <p><span class="refresh-link">登入 Credit Hero Club 以更新您的批核機會。</span></p>
-            <p style="margin-top:6px;">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
-        } else {
-          cell.innerHTML = `<span class="odds-signin">登入查看</span>`;
-          detail.innerHTML = `
-            <div class="detail-section-title">批核機會 <span class="chevron">&#9650;</span></div>
-            <div class="detail-odds-value" style="color:#888;">批核機會：？</div>
-            <p><span class="refresh-link">免費查閱信貸報告以了解您的批核機會</span></p>
-            <p style="margin-top:6px;">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
-        }
-      });
-    });
-  }
-
-  function setState(state, btn) {
-    currentState = state;
-    // Only toggle state buttons, not device buttons
-    btn.closest('.btn-group').querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    document.querySelectorAll('.banner-fresh').forEach(el => el.style.display = state === 'fresh' ? 'flex' : 'none');
-    document.querySelectorAll('.banner-stale').forEach(el => el.style.display = state === 'stale' ? 'flex' : 'none');
-    document.querySelectorAll('.banner-guest').forEach(el => el.style.display = state === 'guest' ? 'flex' : 'none');
-
-    document.querySelectorAll('.ri').forEach(info => {
-      if (state === 'fresh') info.innerHTML = '顯示 <strong>59</strong> 個貸款產品，按批核機會排序';
-      else if (state === 'stale') info.innerHTML = '顯示 <strong>59</strong> 個貸款產品，按批核機會排序 <span style="color:#a16207;">（數據已過期）</span>';
-      else info.innerHTML = '顯示 <strong>59</strong> 個貸款產品';
-    });
-    updateOdds();
-  }
-
-  function setDevice(device, btn) {
-    currentDevice = device;
-    btn.closest('.btn-group').querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    const desktop = document.getElementById('desktop-view');
-    const mobile = document.getElementById('mobile-view');
-    if (device === 'desktop') {
-      desktop.style.display = 'block';
-      mobile.classList.remove('active');
-    } else {
-      desktop.style.display = 'none';
-      mobile.classList.add('active');
-    }
-  }
-
-  function toggleDetail(id) {
-    document.getElementById(id).classList.toggle('open');
-  }
+  function toggleDetail(id){document.getElementById(id).classList.toggle('open')}
 </script>
-
 </body>
 </html>
