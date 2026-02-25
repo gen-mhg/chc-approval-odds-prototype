@@ -135,14 +135,14 @@
   .detail-section .refresh-link{color:#0066cc;font-weight:600;cursor:pointer}
   .detail-odds-value{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 
-  /* ── Desktop hidden elements ─────────────────── */
+  /* ── Mobile-only elements hidden on desktop ──── */
   .m-only{display:none !important}
 
   /* ── Footer ──────────────────────────────────── */
   .footer{text-align:center;padding:32px 16px;font-size:11px;color:#aaa}
 
   /* ═══════════════════════════════════════════════
-     MOBILE ≤ 768px
+     MOBILE ≤ 768px — Horizontal scroll table
      ═══════════════════════════════════════════════ */
   @media(max-width:768px){
     .m-only{display:flex !important}
@@ -160,63 +160,46 @@
     .odds-banner{padding:12px 14px;font-size:13px;margin-bottom:14px;border-radius:8px}
     .tab{padding:7px 14px;font-size:12px}
 
-    /* Table header becomes 3-col scrollable */
-    .table-header{display:none}
-    .product-table{border-radius:8px;overflow-x:auto}
+    /* Horizontal scrollable product table */
+    .product-table{border-radius:8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .product-table-inner{min-width:820px}
 
-    /* ── Mobile Product Row ──────────────────── */
+    /* Keep grid table but with fixed min-widths */
+    .table-header{
+      min-width:820px;
+      grid-template-columns:200px 90px 90px 80px 100px 90px 100px !important;
+      padding:10px 12px;font-size:10px;
+    }
+    .table-header>div{padding:0 4px}
+
     .product-row{
-      display:grid !important;
-      grid-template-columns:72px 1fr auto !important;
-      gap:0 10px;
-      padding:12px;
-      align-items:center;
+      min-width:820px;
+      grid-template-columns:200px 90px 90px 80px 100px 90px 100px !important;
+      padding:10px 12px;
     }
-    .product-row>div{padding:0 !important}
+    .product-row>div{padding:0 4px !important}
 
-    /* Logo: row 1-3, col 1 */
-    .product-row .provider{
-      grid-column:1;grid-row:1/3;
-      flex-direction:column;gap:4px;align-items:center;
-    }
-    .provider-logo{width:56px;height:56px;border-radius:8px}
-    .provider .provider-info{display:none}
-    .provider-reward,.provider-tag,.row-expand{display:none}
-    .provider-name{font-size:12px;text-align:center;line-height:1.2}
+    /* Smaller provider cell on mobile */
+    .provider-logo{width:44px;height:44px}
+    .provider{gap:8px}
+    .provider-name{font-size:12px}
+    .provider-reward{font-size:10px}
+    .provider-tag{font-size:9px;padding:1px 4px}
+    .row-expand{font-size:10px}
 
-    /* Product name: col 2, row 1 */
-    .m-product-name{
-      grid-column:2;grid-row:1;
-      font-size:14px;font-weight:600;color:#222;line-height:1.3;
-      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-    }
-
-    /* Odds badge: col 2, row 2 */
-    .odds-cell{
-      grid-column:2;grid-row:2;
-      flex-direction:row !important;align-items:center;gap:6px;
-      padding:4px 0 !important;
-    }
-
-    /* Apply button: col 3, row 1-2 */
-    .m-apply-col{
-      grid-column:3;grid-row:1/3;
-      display:flex;align-items:center;
-    }
-    .m-apply-col .btn-apply{padding:8px 12px;font-size:12px;white-space:nowrap}
-
-    /* Hide desktop-only cells */
-    .cell{display:none !important}
-    .d-apply{display:none !important}
+    .cell .value{font-size:13px}
+    .cell .label{font-size:9px}
+    .btn-apply{padding:7px 10px;font-size:12px}
+    .odds-badge{font-size:11px;padding:3px 10px}
 
     /* Mobile detail */
     .detail-grid{grid-template-columns:1fr}
     .product-detail-inner{padding:0 12px 12px}
 
-    /* Expandable row detail trigger */
-    .m-expand-trigger{
-      grid-column:1/4;grid-row:3;
-      font-size:11px;color:#0066cc;cursor:pointer;padding-top:6px;
+    /* Hide mobile-card-only elements that aren't needed in scroll mode */
+    .m-product-name{display:none !important}
+    .m-apply-col{display:none !important}
+    .m-expand-trigger{display:none !important}
       border-top:1px dashed #eee;margin-top:6px;
       display:flex;align-items:center;gap:4px;
     }
@@ -307,12 +290,14 @@
 
   <!-- Product Table -->
   <div class="product-table">
-    <div class="table-header d-only">
-      <div>銀行 / 財務公司</div><div>每月還款</div><div>總利息支出</div><div>實際年利率</div>
-      <div class="col-odds-header">批核機會 <span class="info-icon">&#9432;<span class="tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</span></span></div>
-      <div>MoneyHero 獨家</div><div></div>
+    <div class="product-table-inner">
+      <div class="table-header">
+        <div>銀行 / 財務公司</div><div>每月還款</div><div>總利息支出</div><div>實際年利率</div>
+        <div class="col-odds-header">批核機會 <span class="info-icon">&#9432;<span class="tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</span></span></div>
+        <div>MoneyHero 獨家</div><div></div>
+      </div>
+      <div id="product-list"></div>
     </div>
-    <div id="product-list"></div>
   </div>
 
   <div class="footer">
