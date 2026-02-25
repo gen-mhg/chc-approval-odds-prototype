@@ -42,16 +42,19 @@
   /* ── State Toggle Bar ────────────────────────── */
   .proto-controls {
     position: sticky; top: 0; z-index: 1000;
-    background: #1a1a2e; color: #fff; padding: 12px 24px;
-    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: #1a1a2e; color: #fff; padding: 10px 24px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   }
-  .proto-controls span.label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: .6; }
+  .proto-controls span.label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: .6; }
+  .proto-controls .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .proto-controls .divider { width: 1px; height: 28px; background: rgba(255,255,255,.2); margin: 0 4px; }
   .proto-controls button {
-    padding: 8px 16px; border: 2px solid rgba(255,255,255,.3); border-radius: 6px;
-    background: transparent; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s;
+    padding: 6px 14px; border: 2px solid rgba(255,255,255,.3); border-radius: 6px;
+    background: transparent; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s;
   }
   .proto-controls button:hover { border-color: #fff; }
   .proto-controls button.active { background: #fff; color: #1a1a2e; border-color: #fff; }
+  .proto-controls button.device-btn { padding: 6px 10px; font-size: 14px; }
 
   /* ── Header ──────────────────────────────────── */
   .header { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
@@ -198,17 +201,116 @@
   /* ── Footer ──────────────────────────────────── */
   .footer { text-align: center; padding: 40px 24px; font-size: 12px; color: #999; }
 
-  /* ── Responsive ──────────────────────────────── */
-  @media (max-width: 900px) {
-    .table-header { display: none; }
-    .product-row { grid-template-columns: 1fr; gap: 8px; padding: 14px; }
-    .product-row > div { padding: 0; }
-    .cell .label { display: inline; }
-    .cell .label::after { content: ': '; }
-    .odds-cell { align-items: flex-start; }
+  /* ── Mobile Frame (for desktop preview) ───────── */
+  .mobile-frame {
+    display: none; justify-content: center; padding: 32px 16px; background: #e8e8e8; min-height: calc(100vh - 44px);
+  }
+  .mobile-frame.active { display: flex; }
+  .mobile-frame-inner {
+    width: 390px; max-height: 844px; overflow-y: auto; overflow-x: hidden;
+    background: #f5f5f5; border-radius: 40px; box-shadow: 0 12px 48px rgba(0,0,0,.25);
+    border: 8px solid #1a1a1a; position: relative;
+  }
+  .mobile-frame-inner .header { padding: 10px 16px; }
+  .mobile-frame-inner .hero { padding: 24px 16px; }
+  .mobile-frame-inner .hero h1 { font-size: 18px; }
+  .mobile-frame-inner .hero p { font-size: 13px; }
+  .mobile-frame-inner .container { padding: 16px 12px; }
+  .mobile-frame-inner .header-nav { display: none; }
+  .mobile-frame-inner .tabs { gap: 6px; }
+  .mobile-frame-inner .tab { padding: 6px 12px; font-size: 12px; }
+  .mobile-frame-inner .odds-banner { padding: 12px 14px; font-size: 13px; margin-bottom: 14px; }
+  .mobile-frame-inner .results-info { font-size: 12px; margin-bottom: 12px; }
+  .mobile-frame-inner .table-header { display: none !important; }
+  .mobile-frame-inner .footer { padding: 24px 12px; }
+  .mobile-frame-inner .footer p { font-size: 10px; }
+
+  /* ── Mobile Product Card ─────────────────────── */
+  .mobile-frame-inner .product-row,
+  .is-mobile .product-row {
+    display: flex !important; flex-direction: column; gap: 0;
+    padding: 14px; border-bottom: 1px solid #f0f0f0;
+    grid-template-columns: unset !important;
+  }
+  .mobile-frame-inner .product-row > div,
+  .is-mobile .product-row > div { padding: 0 !important; }
+
+  /* Card top: provider + odds badge */
+  .mobile-frame-inner .product-row .provider,
+  .is-mobile .product-row .provider { margin-bottom: 10px; }
+  .mobile-frame-inner .provider-name,
+  .is-mobile .provider-name { font-size: 13px; }
+
+  /* Odds row on mobile — sits right under provider */
+  .mobile-frame-inner .product-row .odds-cell,
+  .is-mobile .product-row .odds-cell {
+    flex-direction: row; align-items: center; gap: 6px;
+    padding: 8px 0 !important; margin-bottom: 4px;
+    border-top: 1px dashed #eee; border-bottom: 1px dashed #eee;
+  }
+  .mobile-frame-inner .odds-cell::before,
+  .is-mobile .odds-cell::before {
+    content: '批核機會'; font-size: 11px; color: #888; font-weight: 600;
+  }
+
+  /* Stats grid: 2x2 */
+  .m-stats {
+    display: none; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin: 8px 0;
+  }
+  .mobile-frame-inner .m-stats,
+  .is-mobile .m-stats { display: grid !important; }
+  .m-stat { background: #f8f9fa; border-radius: 6px; padding: 8px 10px; }
+  .m-stat .label { font-size: 10px; color: #888; margin-bottom: 2px; }
+  .m-stat .value { font-size: 14px; font-weight: 700; color: #222; }
+  .m-stat .value.reward-val { color: #e67e00; }
+
+  /* Hide desktop-only cells on mobile */
+  .mobile-frame-inner .product-row .cell,
+  .is-mobile .product-row .cell { display: none !important; }
+  .mobile-frame-inner .product-row .cell[style],
+  .is-mobile .product-row .cell[style] { display: none !important; }
+
+  /* Full-width apply button on mobile */
+  .mobile-frame-inner .product-row > div:last-child,
+  .is-mobile .product-row > div:last-child { text-align: center !important; margin-top: 8px; }
+  .mobile-frame-inner .btn-apply,
+  .is-mobile .btn-apply { width: 100%; padding: 11px; font-size: 14px; }
+
+  /* Mobile detail */
+  .mobile-frame-inner .detail-grid,
+  .is-mobile .detail-grid { grid-template-columns: 1fr; }
+  .mobile-frame-inner .product-detail.open,
+  .is-mobile .product-detail.open { max-height: 500px; }
+
+  /* ── True small-screen responsive ────────────── */
+  @media (max-width: 640px) {
+    .table-header { display: none !important; }
+    .product-row {
+      display: flex !important; flex-direction: column; gap: 0;
+      padding: 14px; grid-template-columns: unset !important;
+    }
+    .product-row > div { padding: 0 !important; }
+    .product-row .provider { margin-bottom: 10px; }
+    .product-row .odds-cell {
+      flex-direction: row; align-items: center; gap: 6px;
+      padding: 8px 0 !important; margin-bottom: 4px;
+      border-top: 1px dashed #eee; border-bottom: 1px dashed #eee;
+    }
+    .odds-cell::before { content: '批核機會'; font-size: 11px; color: #888; font-weight: 600; }
+    .m-stats { display: grid !important; }
+    .product-row .cell { display: none !important; }
+    .product-row .cell[style] { display: none !important; }
+    .product-row > div:last-child { text-align: center !important; margin-top: 8px; }
+    .btn-apply { width: 100%; padding: 11px; font-size: 14px; }
     .detail-grid { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 20px; }
+    .hero h1 { font-size: 18px; }
+    .hero { padding: 24px 16px; }
     .header-nav { display: none; }
+    .container { padding: 16px 12px; }
+    .odds-banner { padding: 12px 14px; font-size: 13px; }
+    .proto-controls { padding: 8px 12px; gap: 8px; }
+    .proto-controls button { padding: 5px 10px; font-size: 11px; }
   }
 </style>
 </head>
@@ -229,90 +331,91 @@
 
 <!-- ── Prototype State Switcher ─────────────────── -->
 <div class="proto-controls">
-  <span class="label">Prototype State:</span>
-  <button class="active" onclick="setState('fresh', this)">Up-to-date Odds</button>
-  <button onclick="setState('stale', this)">Stale Odds</button>
-  <button onclick="setState('guest', this)">Not Logged In</button>
-</div>
-
-<!-- ── Header ───────────────────────────────────── -->
-<div class="header">
-  <div class="logo"><span class="money">Money</span><span class="hero">Hero</span></div>
-  <div class="header-nav">
-    <a href="#">信用卡</a>
-    <a href="#" style="font-weight:700;color:#00b7b2;">私人貸款</a>
-    <a href="#">保險</a>
-    <a href="#">按揭</a>
-    <a href="#">銀行戶口</a>
+  <span class="label">State:</span>
+  <div class="btn-group">
+    <button class="active" onclick="setState('fresh', this)">Up-to-date</button>
+    <button onclick="setState('stale', this)">Stale</button>
+    <button onclick="setState('guest', this)">Not Logged In</button>
+  </div>
+  <div class="divider"></div>
+  <span class="label">Device:</span>
+  <div class="btn-group">
+    <button class="device-btn active" onclick="setDevice('desktop', this)" title="Desktop">&#128187;</button>
+    <button class="device-btn" onclick="setDevice('mobile', this)" title="Mobile">&#128241;</button>
   </div>
 </div>
 
-<!-- ── Hero ──────────────────────────────────────── -->
-<div class="hero">
-  <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
-  <p>比較香港 50+ 間銀行及財務公司私人貸款，找出最低利息及最高回贈</p>
-</div>
-
-<div class="container">
-
-  <!-- ── Approval Odds Banners ────────────────── -->
-  <div class="odds-banner fresh" id="banner-fresh">
-    <span class="icon">&#10003;</span>
-    <div>您的批核機會評估已更新 &nbsp;·&nbsp; 根據您最新的信貸報告計算</div>
-  </div>
-  <div class="odds-banner stale" id="banner-stale" style="display:none;">
-    <span class="icon">&#9888;</span>
-    <div>您的批核機會評估已過期。<a href="#">登入 Credit Hero Club 以更新</a></div>
-  </div>
-  <div class="odds-banner guest" id="banner-guest" style="display:none;">
-    <span class="icon">&#128274;</span>
-    <div>免費查閱信貸報告，即睇您的批核機會。<a href="#">立即登入 Credit Hero Club</a></div>
-  </div>
-
-  <!-- ── Tabs ─────────────────────────────────── -->
-  <div class="tabs">
-    <div class="tab active">全部貸款</div>
-    <div class="tab">&#11088; 精選貸款</div>
-    <div class="tab">&#127970; 銀行貸款</div>
-    <div class="tab">&#127974; 財務公司</div>
-    <div class="tab">稅季貸款</div>
-    <div class="tab">結餘轉戶</div>
-    <div class="tab">低息貸款</div>
-    <div class="tab">免文件貸款</div>
-    <div class="tab">業主貸款</div>
-  </div>
-
-  <div class="results-info" id="results-info">顯示 <strong>59</strong> 個貸款產品，按批核機會排序</div>
-
-  <!-- ── Product Table ────────────────────────── -->
-  <div class="product-table">
-
-    <div class="table-header" id="table-header">
-      <div>銀行 / 財務公司</div>
-      <div>每月還款</div>
-      <div>總利息支出</div>
-      <div>實際年利率</div>
-      <div class="col-odds-header" id="odds-col-header">
-        批核機會
-        <span class="info-icon">&#9432;
-          <span class="tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</span>
-        </span>
-      </div>
-      <div>MoneyHero 獨家優惠</div>
-      <div></div>
+<!-- ═══ Desktop View ═══ -->
+<div id="desktop-view">
+  <div class="header">
+    <div class="logo"><span class="money">Money</span><span class="hero">Hero</span></div>
+    <div class="header-nav">
+      <a href="#">信用卡</a>
+      <a href="#" style="font-weight:700;color:#00b7b2;">私人貸款</a>
+      <a href="#">保險</a>
+      <a href="#">按揭</a>
+      <a href="#">銀行戶口</a>
     </div>
-
-    <!-- Products are rendered by JS -->
-    <div id="product-list"></div>
-
   </div>
-
-  <div class="footer">
-    <p>Prototype — CHC Approval Odds MVP &nbsp;|&nbsp; MoneyHero HK Personal Loan &nbsp;|&nbsp; 2026-02-25</p>
-    <p style="margin-top:4px;">States: Up-to-date / Stale / Not Logged In &nbsp;·&nbsp; Toggle using the bar above</p>
+  <div class="hero">
+    <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
+    <p>比較香港 50+ 間銀行及財務公司私人貸款，找出最低利息及最高回贈</p>
   </div>
+  <div class="container">
+    <div class="odds-banner fresh banner-fresh"><span class="icon">&#10003;</span><div>您的批核機會評估已更新 &nbsp;·&nbsp; 根據您最新的信貸報告計算</div></div>
+    <div class="odds-banner stale banner-stale" style="display:none;"><span class="icon">&#9888;</span><div>您的批核機會評估已過期。<a href="#">登入 Credit Hero Club 以更新</a></div></div>
+    <div class="odds-banner guest banner-guest" style="display:none;"><span class="icon">&#128274;</span><div>免費查閱信貸報告，即睇您的批核機會。<a href="#">立即登入 Credit Hero Club</a></div></div>
+    <div class="tabs">
+      <div class="tab active">全部貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">稅季貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div><div class="tab">免文件貸款</div><div class="tab">業主貸款</div>
+    </div>
+    <div class="results-info ri">顯示 <strong>59</strong> 個貸款產品，按批核機會排序</div>
+    <div class="product-table">
+      <div class="table-header">
+        <div>銀行 / 財務公司</div><div>每月還款</div><div>總利息支出</div><div>實際年利率</div>
+        <div class="col-odds-header">批核機會 <span class="info-icon">&#9432;<span class="tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</span></span></div>
+        <div>MoneyHero 獨家優惠</div><div></div>
+      </div>
+      <div class="product-list-container"></div>
+    </div>
+    <div class="footer">
+      <p>Prototype — CHC Approval Odds MVP &nbsp;|&nbsp; MoneyHero HK Personal Loan &nbsp;|&nbsp; 2026-02-25</p>
+      <p style="margin-top:4px;">States: Up-to-date / Stale / Not Logged In &nbsp;·&nbsp; Toggle via bar above</p>
+    </div>
+  </div>
+</div>
 
-</div><!-- /container -->
+<!-- ═══ Mobile Frame View ═══ -->
+<div class="mobile-frame" id="mobile-view">
+  <div class="mobile-frame-inner">
+    <div class="header">
+      <div class="logo"><span class="money">Money</span><span class="hero">Hero</span></div>
+      <div class="header-nav">
+        <a href="#">信用卡</a>
+        <a href="#" style="font-weight:700;color:#00b7b2;">私人貸款</a>
+        <a href="#">保險</a>
+      </div>
+    </div>
+    <div class="hero">
+      <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
+      <p>比較香港 50+ 間銀行及財務公司私人貸款</p>
+    </div>
+    <div class="container">
+      <div class="odds-banner fresh banner-fresh"><span class="icon">&#10003;</span><div>您的批核機會評估已更新</div></div>
+      <div class="odds-banner stale banner-stale" style="display:none;"><span class="icon">&#9888;</span><div>批核機會已過期。<a href="#">登入 CHC 更新</a></div></div>
+      <div class="odds-banner guest banner-guest" style="display:none;"><span class="icon">&#128274;</span><div>免費查閱信貸報告，即睇批核機會。<a href="#">登入 CHC</a></div></div>
+      <div class="tabs">
+        <div class="tab active">全部</div><div class="tab">&#11088; 精選</div><div class="tab">&#127970; 銀行</div><div class="tab">&#127974; 財務</div><div class="tab">稅季</div><div class="tab">結餘轉戶</div>
+      </div>
+      <div class="results-info ri">顯示 <strong>59</strong> 個產品</div>
+      <div class="product-table">
+        <div class="product-list-container"></div>
+      </div>
+      <div class="footer">
+        <p>Prototype — CHC Approval Odds MVP</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 </div><!-- /app-content -->
 
@@ -346,7 +449,7 @@
     renderProducts();
   });
 
-  // ── Product Data (from live moneyhero.com.hk/zh/personal-loan) ──
+  // ── Product Data (from live moneyhero.com.hk/zh/personal-loan 2026-02-25) ──
   const products = [
     { id: 0, name: 'Citi 特快現金私人貸款', provider: '花旗銀行', logo: 'Citi', logoColor: '#003b70', monthly: 'HK$8,459', interest: 'HK$3,024', apr: '1.40%', fee: 'HK$0', reward: 'HK$6,088', tag: '全城最高優惠', tagClass: 'exclusive', odds: 'high' },
     { id: 1, name: 'WeLend 私人貸款', provider: 'WeLend', logo: 'WeLend', logoColor: '#e8395a', monthly: 'HK$8,495', interest: 'HK$3,888', apr: '1.00%', fee: 'HK$0', reward: 'HK$3,600', tag: '全城最高優惠', tagClass: 'exclusive', odds: 'high' },
@@ -371,88 +474,121 @@
   ];
 
   let currentState = 'fresh';
+  let currentDevice = 'desktop';
 
-  function renderProducts() {
-    const list = document.getElementById('product-list');
-    list.innerHTML = products.map(p => `
-      <div class="product-row" id="row-${p.id}">
+  function productHTML(p, prefix) {
+    return `
+      <div class="product-row" id="${prefix}-row-${p.id}">
         <div class="provider">
           <div class="provider-logo" style="background:${p.logoColor};">${p.logo}</div>
           <div>
             <div class="provider-name">${p.name}</div>
             ${p.tag ? `<span class="provider-tag ${p.tagClass}">${p.tag}</span>` : ''}
             <div class="provider-reward">&#127873; 高達 ${p.reward} 獎賞</div>
-            <span class="row-expand" onclick="toggleDetail('detail-${p.id}')">查看詳情 &#9662;</span>
+            <span class="row-expand" onclick="toggleDetail('${prefix}-detail-${p.id}')">查看詳情 &#9662;</span>
           </div>
         </div>
         <div class="cell"><div class="value">${p.monthly}</div><div class="label">每月還款</div></div>
         <div class="cell"><div class="value">${p.interest}</div><div class="label">總利息</div></div>
         <div class="cell"><div class="value">${p.apr}</div><div class="label">實際年利率</div></div>
-        <div class="odds-cell" id="odds-${p.id}"></div>
+        <div class="odds-cell" id="${prefix}-odds-${p.id}"></div>
+        <!-- Mobile stats grid (hidden on desktop, shown on mobile) -->
+        <div class="m-stats">
+          <div class="m-stat"><div class="label">每月還款</div><div class="value">${p.monthly}</div></div>
+          <div class="m-stat"><div class="label">實際年利率</div><div class="value">${p.apr}</div></div>
+          <div class="m-stat"><div class="label">總利息支出</div><div class="value">${p.interest}</div></div>
+          <div class="m-stat"><div class="label">MoneyHero 獨家</div><div class="value reward-val">${p.reward}</div></div>
+        </div>
         <div class="cell" style="text-align:center;"><div class="value" style="color:#e67e00;font-size:14px;">${p.reward}</div><div class="label">MoneyHero 獨家</div></div>
         <div style="text-align:right;"><button class="btn-apply">立即申請</button></div>
       </div>
-      <div class="product-detail" id="detail-${p.id}">
+      <div class="product-detail" id="${prefix}-detail-${p.id}">
         <div class="product-detail-inner"><div class="detail-grid">
           <div class="detail-section">
             <div class="detail-section-title">貸款詳情</div>
             <p>每月還款：${p.monthly}<br>總利息支出：${p.interest}<br>實際年利率：${p.apr}<br>手續費：${p.fee}</p>
           </div>
-          <div class="detail-section" id="detail-odds-${p.id}"></div>
+          <div class="detail-section" id="${prefix}-detail-odds-${p.id}"></div>
         </div></div>
-      </div>
-    `).join('');
+      </div>`;
+  }
+
+  function renderProducts() {
+    document.querySelectorAll('.product-list-container').forEach((list, idx) => {
+      const prefix = idx === 0 ? 'd' : 'm';
+      list.innerHTML = products.map(p => productHTML(p, prefix)).join('');
+    });
     updateOdds();
   }
 
   function updateOdds() {
-    products.forEach(p => {
-      const cell = document.getElementById(`odds-${p.id}`);
-      const detail = document.getElementById(`detail-odds-${p.id}`);
-      const odds = p.odds;
-      const cap = odds.charAt(0).toUpperCase() + odds.slice(1);
+    ['d','m'].forEach(prefix => {
+      products.forEach(p => {
+        const cell = document.getElementById(`${prefix}-odds-${p.id}`);
+        const detail = document.getElementById(`${prefix}-detail-odds-${p.id}`);
+        if (!cell || !detail) return;
+        const odds = p.odds;
+        const cap = odds.charAt(0).toUpperCase() + odds.slice(1);
 
-      if (currentState === 'fresh') {
-        cell.innerHTML = `<span class="odds-badge ${odds}">${cap}</span>`;
-        detail.innerHTML = `
-          <div class="detail-section-title">批核機會 <span class="chevron">&#9650;</span></div>
-          <div class="detail-odds-value"><span class="odds-badge ${odds}">${cap}</span></div>
-          <p class="updated">最後更新：2026年2月25日</p>
-          <p>批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
-      } else if (currentState === 'stale') {
-        cell.innerHTML = `<span class="odds-badge ${odds}" style="opacity:.6;">${cap}</span><span class="odds-stale-label">已過期</span>`;
-        detail.innerHTML = `
-          <div class="detail-section-title">批核機會 <span class="chevron">&#9650;</span></div>
-          <div class="detail-odds-value"><span class="odds-badge ${odds}" style="opacity:.6;">${cap}</span></div>
-          <p class="updated">最後更新：2025年11月12日</p>
-          <p><span class="refresh-link">登入 Credit Hero Club 以更新您的批核機會。</span></p>
-          <p style="margin-top:6px;">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
-      } else {
-        cell.innerHTML = `<span class="odds-signin">登入查看</span>`;
-        detail.innerHTML = `
-          <div class="detail-section-title">批核機會 <span class="chevron">&#9650;</span></div>
-          <div class="detail-odds-value" style="color:#888;">批核機會：？</div>
-          <p><span class="refresh-link">免費查閱信貸報告以了解您的批核機會</span></p>
-          <p style="margin-top:6px;">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
-      }
+        if (currentState === 'fresh') {
+          cell.innerHTML = `<span class="odds-badge ${odds}">${cap}</span>`;
+          detail.innerHTML = `
+            <div class="detail-section-title">批核機會 <span class="chevron">&#9650;</span></div>
+            <div class="detail-odds-value"><span class="odds-badge ${odds}">${cap}</span></div>
+            <p class="updated">最後更新：2026年2月25日</p>
+            <p>批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
+        } else if (currentState === 'stale') {
+          cell.innerHTML = `<span class="odds-badge ${odds}" style="opacity:.6;">${cap}</span><span class="odds-stale-label">已過期</span>`;
+          detail.innerHTML = `
+            <div class="detail-section-title">批核機會 <span class="chevron">&#9650;</span></div>
+            <div class="detail-odds-value"><span class="odds-badge ${odds}" style="opacity:.6;">${cap}</span></div>
+            <p class="updated">最後更新：2025年11月12日</p>
+            <p><span class="refresh-link">登入 Credit Hero Club 以更新您的批核機會。</span></p>
+            <p style="margin-top:6px;">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
+        } else {
+          cell.innerHTML = `<span class="odds-signin">登入查看</span>`;
+          detail.innerHTML = `
+            <div class="detail-section-title">批核機會 <span class="chevron">&#9650;</span></div>
+            <div class="detail-odds-value" style="color:#888;">批核機會：？</div>
+            <p><span class="refresh-link">免費查閱信貸報告以了解您的批核機會</span></p>
+            <p style="margin-top:6px;">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>`;
+        }
+      });
     });
   }
 
   function setState(state, btn) {
     currentState = state;
-    document.querySelectorAll('.proto-controls button').forEach(b => b.classList.remove('active'));
+    // Only toggle state buttons, not device buttons
+    btn.closest('.btn-group').querySelectorAll('button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    document.getElementById('banner-fresh').style.display = state === 'fresh' ? 'flex' : 'none';
-    document.getElementById('banner-stale').style.display = state === 'stale' ? 'flex' : 'none';
-    document.getElementById('banner-guest').style.display = state === 'guest' ? 'flex' : 'none';
+    document.querySelectorAll('.banner-fresh').forEach(el => el.style.display = state === 'fresh' ? 'flex' : 'none');
+    document.querySelectorAll('.banner-stale').forEach(el => el.style.display = state === 'stale' ? 'flex' : 'none');
+    document.querySelectorAll('.banner-guest').forEach(el => el.style.display = state === 'guest' ? 'flex' : 'none');
 
-    const info = document.getElementById('results-info');
-    if (state === 'fresh') info.innerHTML = '顯示 <strong>59</strong> 個貸款產品，按批核機會排序';
-    else if (state === 'stale') info.innerHTML = '顯示 <strong>59</strong> 個貸款產品，按批核機會排序 <span style="color:#a16207;">（數據已過期）</span>';
-    else info.innerHTML = '顯示 <strong>59</strong> 個貸款產品';
-
+    document.querySelectorAll('.ri').forEach(info => {
+      if (state === 'fresh') info.innerHTML = '顯示 <strong>59</strong> 個貸款產品，按批核機會排序';
+      else if (state === 'stale') info.innerHTML = '顯示 <strong>59</strong> 個貸款產品，按批核機會排序 <span style="color:#a16207;">（數據已過期）</span>';
+      else info.innerHTML = '顯示 <strong>59</strong> 個貸款產品';
+    });
     updateOdds();
+  }
+
+  function setDevice(device, btn) {
+    currentDevice = device;
+    btn.closest('.btn-group').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const desktop = document.getElementById('desktop-view');
+    const mobile = document.getElementById('mobile-view');
+    if (device === 'desktop') {
+      desktop.style.display = 'block';
+      mobile.classList.remove('active');
+    } else {
+      desktop.style.display = 'none';
+      mobile.classList.add('active');
+    }
   }
 
   function toggleDetail(id) {
