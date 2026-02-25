@@ -114,10 +114,11 @@
   }
   .table-header>div{padding:0 6px}
   .col-odds-header{display:flex;align-items:center;gap:4px;color:#e67e00;font-weight:700}
-  .col-odds-header .info-icon{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid #e67e00;font-size:9px;cursor:pointer;position:relative}
-  .info-icon .tooltip{display:none;position:absolute;bottom:22px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:400;width:240px;line-height:1.5;white-space:normal;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.2)}
-  .info-icon .tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#333}
-  .info-icon:hover .tooltip{display:block}
+  .col-odds-header .info-icon{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1.5px solid #e67e00;font-size:9px;cursor:pointer}
+
+  /* JS-positioned tooltip (avoids overflow clip) */
+  .floating-tooltip{display:none;position:fixed;background:#333;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:400;width:260px;line-height:1.5;white-space:normal;z-index:9000;box-shadow:0 4px 12px rgba(0,0,0,.2);pointer-events:none}
+  .floating-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#333}
 
   /* ── Product Row ── */
   .product-row{
@@ -209,14 +210,17 @@
   .card-accordion-body.open{max-height:400px}
   .card-accordion-content{padding:0 20px 16px}
 
-  /* Odds accordion within card */
-  .card-odds-header{color:#e67e00}
-  .card-odds-badge-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-  .card-odds-disclaimer{font-size:12px;color:#666;line-height:1.6}
-  .card-odds-updated{font-size:11px;color:#999;margin-bottom:6px}
-  .card-odds-refresh{color:#0066cc;font-weight:600;cursor:pointer;font-size:13px}
-  .card-odds-signin-cta{background:#e8f0fe;border-radius:8px;padding:12px 16px;text-align:center}
-  .card-odds-signin-cta a{color:#0066cc;font-weight:700;font-size:13px;text-decoration:underline}
+  /* ── Card Odds Banner (always visible, not in accordion) ── */
+  .card-odds-banner{padding:14px 20px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:12px;background:#fafcff}
+  .card-odds-banner .cob-label{font-size:13px;font-weight:600;color:#e67e00;white-space:nowrap;display:flex;align-items:center;gap:4px}
+  .card-odds-banner .cob-label .info-icon{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:1.5px solid #e67e00;font-size:8px;cursor:pointer}
+  .card-odds-banner .cob-badge{flex-shrink:0}
+  .card-odds-banner .cob-meta{font-size:11px;color:#999;margin-left:auto;white-space:nowrap}
+  .card-odds-banner .cob-stale{font-size:11px;color:#a16207}
+  .card-odds-banner .cob-refresh{font-size:12px;color:#0066cc;font-weight:600;cursor:pointer;text-decoration:underline;margin-left:auto}
+  .card-odds-guest{padding:14px 20px;border-top:1px solid #f0f0f0;background:#f0f5ff;display:flex;align-items:center;gap:10px}
+  .card-odds-guest .cob-label{font-size:13px;font-weight:600;color:#e67e00;white-space:nowrap}
+  .card-odds-guest a{color:#0066cc;font-weight:600;font-size:13px;text-decoration:underline}
 
   /* Other accordion content */
   .card-reward-detail{display:flex;align-items:center;gap:10px;padding:8px 0}
@@ -371,7 +375,7 @@
     <div class="product-table-inner">
       <div class="table-header">
         <div>銀行 / 財務公司</div>
-        <div class="col-odds-header">批核機會 <span class="info-icon">&#9432;<span class="tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</span></span></div>
+        <div class="col-odds-header">批核機會 <span class="info-icon" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">&#9432;</span></div>
         <div>實際年利率</div>
         <div>每月還款</div>
         <div>總利息支出</div>
@@ -392,6 +396,9 @@
     <p>Prototype — CHC Approval Odds MVP | MoneyHero HK | 2026-02-25</p>
   </div>
 </div>
+
+<!-- Floating Tooltip -->
+<div class="floating-tooltip" id="floating-tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</div>
 
 </div><!-- /app-content -->
 
@@ -507,18 +514,10 @@
           </div>
         </div>
 
-        <div class="card-accordions">
-          <!-- APPROVAL ODDS ACCORDION -->
-          <div class="card-accordion">
-            <div class="card-accordion-header card-odds-header" onclick="toggleCardAccordion(this)">
-              批核機會
-              <span class="acc-arrow">&#9660;</span>
-            </div>
-            <div class="card-accordion-body" id="card-odds-body-${p.id}">
-              <div class="card-accordion-content" id="card-odds-content-${p.id}"></div>
-            </div>
-          </div>
+        <!-- APPROVAL ODDS — always visible banner -->
+        <div id="card-odds-${p.id}"></div>
 
+        <div class="card-accordions">
           <!-- MH REWARDS ACCORDION -->
           <div class="card-accordion">
             <div class="card-accordion-header" onclick="toggleCardAccordion(this)">
@@ -607,28 +606,30 @@
     });
   }
 
-  // ═══ ODDS UPDATE — CARDS ═══
+  // ═══ ODDS UPDATE — CARDS (always visible banner) ═══
   function updateCardOdds(){
     products.slice(0,6).forEach(p=>{
-      const el=document.getElementById('card-odds-content-'+p.id);
+      const el=document.getElementById('card-odds-'+p.id);
       if(!el)return;
       const o=p.odds, labels={high:'高',medium:'中',low:'低'}, label=labels[o];
       if(currentState==='fresh'){
-        el.innerHTML=`
-          <div class="card-odds-badge-row"><span class="odds-badge ${o}">${label}</span></div>
-          <div class="card-odds-updated">最後更新：2026年2月25日</div>
-          <div class="card-odds-disclaimer">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</div>`;
+        el.innerHTML=`<div class="card-odds-banner">
+          <span class="cob-label">批核機會 <span class="info-icon" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">&#9432;</span></span>
+          <span class="cob-badge"><span class="odds-badge ${o}">${label}</span></span>
+          <span class="cob-meta">更新：2026年2月25日</span>
+        </div>`;
       }else if(currentState==='stale'){
-        el.innerHTML=`
-          <div class="card-odds-badge-row"><span class="odds-badge ${o}" style="opacity:.6">${label}</span> <span class="odds-stale-label" style="font-size:11px">已過期</span></div>
-          <div class="card-odds-updated">最後更新：2025年11月12日</div>
-          <p class="card-odds-refresh">登入 Credit Hero Club 以更新您的批核機會</p>
-          <div class="card-odds-disclaimer" style="margin-top:8px">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</div>`;
+        el.innerHTML=`<div class="card-odds-banner">
+          <span class="cob-label">批核機會 <span class="info-icon" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()">&#9432;</span></span>
+          <span class="cob-badge"><span class="odds-badge ${o}" style="opacity:.6">${label}</span></span>
+          <span class="cob-stale">已過期</span>
+          <span class="cob-refresh">登入 CHC 更新</span>
+        </div>`;
       }else{
-        el.innerHTML=`
-          <div class="card-odds-badge-row" style="color:#888;font-weight:700;font-size:15px">批核機會：？</div>
-          <div class="card-odds-signin-cta"><a href="#">免費查閱信貸報告以了解您的批核機會</a></div>
-          <div class="card-odds-disclaimer" style="margin-top:10px">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</div>`;
+        el.innerHTML=`<div class="card-odds-guest">
+          <span class="cob-label">批核機會：？</span>
+          <a href="#">免費查閱信貸報告以了解您的批核機會</a>
+        </div>`;
       }
     });
   }
@@ -662,6 +663,18 @@
     header.classList.toggle('open');
     const body=header.nextElementSibling;
     body.classList.toggle('open');
+  }
+
+  // ═══ FLOATING TOOLTIP ═══
+  function showTooltip(e){
+    const tip=document.getElementById('floating-tooltip');
+    const rect=e.target.getBoundingClientRect();
+    tip.style.display='block';
+    tip.style.left=(rect.left+rect.width/2-130)+'px';
+    tip.style.top=(rect.top-tip.offsetHeight-10)+'px';
+  }
+  function hideTooltip(){
+    document.getElementById('floating-tooltip').style.display='none';
   }
 </script>
 </body>
