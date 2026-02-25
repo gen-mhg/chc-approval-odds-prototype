@@ -33,6 +33,7 @@
   .proto-controls button{padding:6px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:5px;background:transparent;color:#fff;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
   .proto-controls button:hover{border-color:#fff}
   .proto-controls button.active{background:#fff;color:#1a1a2e;border-color:#fff}
+  .proto-controls .plabel-view{margin-left:auto}
 
   /* ── Header ── */
   .site-header{background:#fff;border-bottom:1px solid #e0e0e0;padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
@@ -48,7 +49,7 @@
   .breadcrumb a:hover{color:#00b7b2}
   .breadcrumb span{margin:0 4px;color:#ccc}
 
-  /* ── Page Heading (white bg, not hero) ── */
+  /* ── Page Heading ── */
   .page-heading{background:#fff;padding:20px 20px 16px;border-bottom:1px solid #eee}
   .page-heading h1{font-size:26px;font-weight:800;color:#222;line-height:1.3;margin-bottom:6px}
   .page-heading .updated-date{font-size:12px;color:#999;margin-bottom:12px}
@@ -93,17 +94,21 @@
   .results-info{font-size:13px;color:#777;margin-bottom:12px}
   .results-info strong{color:#333}
 
+  /* ── View Toggle ── */
+  .view-toggle{display:flex;gap:6px;margin-bottom:16px}
+  .view-toggle button{padding:7px 14px;border:1px solid #ddd;border-radius:6px;background:#fff;font-size:12px;font-weight:600;color:#555;cursor:pointer}
+  .view-toggle button:hover{border-color:#00b7b2;color:#00b7b2}
+  .view-toggle button.active{background:#00b7b2;color:#fff;border-color:#00b7b2}
+
   /* ── Product Table — scrollable wrapper ── */
   .product-table{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow-x:auto;-webkit-overflow-scrolling:touch}
   .product-table::-webkit-scrollbar{height:6px}
   .product-table::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
-
-  /* Inner container holds the grid at a fixed min-width */
-  .product-table-inner{min-width:880px}
+  .product-table-inner{min-width:920px}
 
   .table-header{
     display:grid;
-    grid-template-columns:240px 100px 100px 90px 110px 110px 100px;
+    grid-template-columns:220px 110px 90px 100px 100px 110px 100px;
     padding:12px 16px;background:#fafafa;border-bottom:2px solid #eee;
     font-size:11px;font-weight:600;color:#888;align-items:center;
   }
@@ -117,7 +122,7 @@
   /* ── Product Row ── */
   .product-row{
     display:grid;
-    grid-template-columns:240px 100px 100px 90px 110px 110px 100px;
+    grid-template-columns:220px 110px 90px 100px 100px 110px 100px;
     padding:14px 16px;border-bottom:1px solid #f0f0f0;align-items:center;
   }
   .product-row:hover{background:#fafcff}
@@ -151,7 +156,7 @@
   .odds-signin{font-size:11px;color:#0066cc;font-weight:600;cursor:pointer;text-decoration:underline}
   .odds-stale-label{font-size:9px;color:#a16207;margin-top:1px}
 
-  /* ── Expandable Detail ── */
+  /* ── Table Expandable Detail ── */
   .product-detail{max-height:0;overflow:hidden;transition:max-height .3s ease;border-bottom:1px solid #f0f0f0}
   .product-detail.open{max-height:500px}
   .product-detail-inner{padding:0 16px 16px}
@@ -162,6 +167,65 @@
   .detail-section .updated{font-size:11px;color:#999;margin-bottom:4px}
   .detail-section .refresh-link{color:#0066cc;font-weight:600;cursor:pointer}
   .detail-odds-value{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+
+  /* ═══════════════════════════════════════ */
+  /* ── PRODUCT CARDS ── */
+  /* ═══════════════════════════════════════ */
+  .cards-section{margin-top:32px}
+  .cards-section-title{font-size:16px;font-weight:700;color:#222;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .cards-section-title .count-badge{background:#e67e00;color:#fff;font-size:11px;font-weight:700;border-radius:12px;padding:2px 10px}
+
+  .product-card{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px;overflow:hidden}
+
+  /* Card Header */
+  .card-header{padding:16px 20px;display:flex;align-items:flex-start;gap:14px}
+  .card-logo{width:64px;height:64px;border-radius:10px;border:1px solid #eee;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#fff;padding:4px}
+  .card-logo img{width:100%;height:100%;object-fit:contain}
+  .card-header-info{flex:1;min-width:0}
+  .card-product-name{font-size:15px;font-weight:700;color:#222;line-height:1.4;margin-bottom:4px}
+  .card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+  .card-tag{font-size:10px;color:#fff;background:#e67e00;border-radius:3px;padding:2px 8px;font-weight:600}
+  .card-tag.tax{background:#0072aa}.card-tag.fast{background:#8e24aa}.card-tag.exclusive{background:#d32f2f}.card-tag.balance{background:#00695c}
+  .card-reward-line{font-size:12px;color:#e67e00;font-weight:600}
+  .card-header-apply{flex-shrink:0;align-self:center}
+  .card-header-apply .btn-apply{padding:10px 20px;font-size:14px}
+
+  /* Card Stats Row */
+  .card-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0}
+  .card-stat{padding:14px 16px;text-align:center;border-right:1px solid #f0f0f0}
+  .card-stat:last-child{border-right:none}
+  .card-stat .stat-label{font-size:11px;color:#888;margin-bottom:4px}
+  .card-stat .stat-value{font-size:16px;font-weight:700;color:#222}
+
+  /* Card Accordion Sections */
+  .card-accordions{padding:0}
+  .card-accordion{border-bottom:1px solid #f0f0f0}
+  .card-accordion:last-child{border-bottom:none}
+  .card-accordion-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;font-size:14px;font-weight:600;color:#333}
+  .card-accordion-header:hover{background:#fafafa}
+  .card-accordion-header .acc-arrow{font-size:12px;color:#999;transition:transform .2s}
+  .card-accordion-header.open .acc-arrow{transform:rotate(180deg)}
+  .card-accordion-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+  .card-accordion-body.open{max-height:400px}
+  .card-accordion-content{padding:0 20px 16px}
+
+  /* Odds accordion within card */
+  .card-odds-header{color:#e67e00}
+  .card-odds-badge-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .card-odds-disclaimer{font-size:12px;color:#666;line-height:1.6}
+  .card-odds-updated{font-size:11px;color:#999;margin-bottom:6px}
+  .card-odds-refresh{color:#0066cc;font-weight:600;cursor:pointer;font-size:13px}
+  .card-odds-signin-cta{background:#e8f0fe;border-radius:8px;padding:12px 16px;text-align:center}
+  .card-odds-signin-cta a{color:#0066cc;font-weight:700;font-size:13px;text-decoration:underline}
+
+  /* Other accordion content */
+  .card-reward-detail{display:flex;align-items:center;gap:10px;padding:8px 0}
+  .card-reward-detail .reward-icon{font-size:20px}
+  .card-reward-detail .reward-text{font-size:14px;font-weight:600;color:#e67e00}
+  .card-steps{list-style:none;counter-reset:step}
+  .card-steps li{counter-increment:step;position:relative;padding:6px 0 6px 32px;font-size:13px;color:#555}
+  .card-steps li::before{content:counter(step);position:absolute;left:0;top:5px;width:22px;height:22px;border-radius:50%;background:#e67e00;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .card-features li{padding:4px 0;font-size:13px;color:#555;list-style:disc;margin-left:16px}
 
   /* ── Footer ── */
   .footer{text-align:center;padding:32px 16px;font-size:11px;color:#aaa}
@@ -191,6 +255,18 @@
     .detail-grid{grid-template-columns:1fr}
     .proto-controls{padding:8px 12px;gap:8px}
     .proto-controls button{padding:5px 10px;font-size:10px}
+    /* Card mobile */
+    .card-header{padding:14px 16px;flex-wrap:wrap}
+    .card-logo{width:52px;height:52px}
+    .card-product-name{font-size:14px}
+    .card-header-apply{width:100%;margin-top:8px}
+    .card-header-apply .btn-apply{width:100%;text-align:center;display:block;padding:12px}
+    .card-stats{grid-template-columns:repeat(2,1fr)}
+    .card-stat{padding:10px 12px}
+    .card-stat:nth-child(2){border-right:none}
+    .card-stat .stat-value{font-size:14px}
+    .card-accordion-header{padding:12px 16px;font-size:13px}
+    .card-accordion-content{padding:0 16px 14px}
   }
 </style>
 </head>
@@ -216,6 +292,12 @@
     <button class="active" onclick="setState('fresh',this)">Up-to-date</button>
     <button onclick="setState('stale',this)">Stale</button>
     <button onclick="setState('guest',this)">Not Logged In</button>
+  </div>
+  <span class="plabel-view plabel">View:</span>
+  <div class="btn-group">
+    <button class="active" onclick="setView('both',this)">Table + Cards</button>
+    <button onclick="setView('table',this)">Table Only</button>
+    <button onclick="setView('cards',this)">Cards Only</button>
   </div>
 </div>
 
@@ -284,20 +366,26 @@
 
   <div class="results-info ri">顯示 <strong>59</strong> 個貸款產品，按批核機會排序</div>
 
-  <!-- Product Table -->
-  <div class="product-table">
+  <!-- ═══ PRODUCT TABLE ═══ -->
+  <div class="product-table" id="table-view">
     <div class="product-table-inner">
       <div class="table-header">
         <div>銀行 / 財務公司</div>
+        <div class="col-odds-header">批核機會 <span class="info-icon">&#9432;<span class="tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</span></span></div>
+        <div>實際年利率</div>
         <div>每月還款</div>
         <div>總利息支出</div>
-        <div>實際年利率</div>
-        <div class="col-odds-header">批核機會 <span class="info-icon">&#9432;<span class="tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</span></span></div>
         <div>MoneyHero 獨家</div>
         <div></div>
       </div>
       <div id="product-list"></div>
     </div>
+  </div>
+
+  <!-- ═══ PRODUCT CARDS ═══ -->
+  <div class="cards-section" id="cards-view">
+    <div class="cards-section-title">產品詳情 <span class="count-badge">20</span></div>
+    <div id="product-cards"></div>
   </div>
 
   <div class="footer">
@@ -320,6 +408,7 @@
     if(sessionStorage.getItem('proto-auth')==='1'){document.getElementById('password-gate').classList.add('hidden');document.getElementById('app-content').classList.add('visible')}
     document.getElementById('gate-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword()});
     renderProducts();
+    renderCards();
   });
 
   // ── Data ──
@@ -348,7 +437,9 @@
   ];
 
   let currentState='fresh';
+  let currentView='both';
 
+  // ═══ TABLE RENDER ═══
   function renderProducts(){
     document.getElementById('product-list').innerHTML=products.map(p=>`
       <div class="product-row" id="row-${p.id}">
@@ -361,10 +452,10 @@
             <span class="row-expand" onclick="toggleDetail('detail-${p.id}')">查看詳情 &#9662;</span>
           </div>
         </div>
+        <div class="odds-cell" id="odds-${p.id}"></div>
+        <div class="cell"><div class="value">${p.apr}</div><div class="label">實際年利率</div></div>
         <div class="cell"><div class="value">${p.monthly}</div><div class="label">每月還款</div></div>
         <div class="cell"><div class="value">${p.interest}</div><div class="label">總利息</div></div>
-        <div class="cell"><div class="value">${p.apr}</div><div class="label">實際年利率</div></div>
-        <div class="odds-cell" id="odds-${p.id}"></div>
         <div class="cell" style="text-align:center"><div class="value" style="color:#e67e00;font-size:14px">${p.reward}</div><div class="label">MoneyHero 獨家</div></div>
         <div style="text-align:right"><button class="btn-apply">立即申請</button></div>
       </div>
@@ -381,17 +472,134 @@
     updateOdds();
   }
 
+  // ═══ CARD RENDER ═══
+  function renderCards(){
+    document.getElementById('product-cards').innerHTML=products.slice(0,6).map(p=>`
+      <div class="product-card" id="card-${p.id}">
+        <div class="card-header">
+          <div class="card-logo"><img src="${p.logo}" alt="" loading="lazy"></div>
+          <div class="card-header-info">
+            <div class="card-product-name">${p.name}</div>
+            <div class="card-tags">
+              ${p.tag?`<span class="card-tag ${p.tagClass}">${p.tag}</span>`:''}
+            </div>
+            <div class="card-reward-line">&#127873; MoneyHero 獎賞高達 ${p.reward}</div>
+          </div>
+          <div class="card-header-apply"><button class="btn-apply">立即申請</button></div>
+        </div>
+
+        <div class="card-stats">
+          <div class="card-stat">
+            <div class="stat-label">每月還款額低至</div>
+            <div class="stat-value">${p.monthly}</div>
+          </div>
+          <div class="card-stat">
+            <div class="stat-label">總利息低至</div>
+            <div class="stat-value">${p.interest}</div>
+          </div>
+          <div class="card-stat">
+            <div class="stat-label">最低實際年利率</div>
+            <div class="stat-value">${p.apr}</div>
+          </div>
+          <div class="card-stat">
+            <div class="stat-label">手續費低至</div>
+            <div class="stat-value">${p.fee}</div>
+          </div>
+        </div>
+
+        <div class="card-accordions">
+          <!-- APPROVAL ODDS ACCORDION -->
+          <div class="card-accordion">
+            <div class="card-accordion-header card-odds-header" onclick="toggleCardAccordion(this)">
+              批核機會
+              <span class="acc-arrow">&#9660;</span>
+            </div>
+            <div class="card-accordion-body" id="card-odds-body-${p.id}">
+              <div class="card-accordion-content" id="card-odds-content-${p.id}"></div>
+            </div>
+          </div>
+
+          <!-- MH REWARDS ACCORDION -->
+          <div class="card-accordion">
+            <div class="card-accordion-header" onclick="toggleCardAccordion(this)">
+              &#127873; MoneyHero獎賞價值
+              <span class="acc-arrow">&#9660;</span>
+            </div>
+            <div class="card-accordion-body">
+              <div class="card-accordion-content">
+                <div class="card-reward-detail">
+                  <span class="reward-icon">&#127873;</span>
+                  <span class="reward-text">高達 ${p.reward} 獎賞</span>
+                </div>
+                <p style="font-size:12px;color:#666">透過 MoneyHero 成功申請可獲獎賞。受條款及細則約束。</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- APPLICATION STEPS ACCORDION -->
+          <div class="card-accordion">
+            <div class="card-accordion-header" onclick="toggleCardAccordion(this)">
+              申請步驟
+              <span class="acc-arrow">&#9660;</span>
+            </div>
+            <div class="card-accordion-body">
+              <div class="card-accordion-content">
+                <ol class="card-steps">
+                  <li>點擊「立即申請」前往銀行網站</li>
+                  <li>填寫申請表格及上傳所需文件</li>
+                  <li>銀行審批及通知結果</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <!-- PRODUCT ANALYSIS ACCORDION -->
+          <div class="card-accordion">
+            <div class="card-accordion-header" onclick="toggleCardAccordion(this)">
+              MoneyHero 產品分析
+              <span class="acc-arrow">&#9660;</span>
+            </div>
+            <div class="card-accordion-body">
+              <div class="card-accordion-content">
+                <ul class="card-features">
+                  <li>實際年利率低至 ${p.apr}</li>
+                  <li>手續費：${p.fee}</li>
+                  <li>適合有穩定收入的申請人</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- ELIGIBILITY ACCORDION -->
+          <div class="card-accordion">
+            <div class="card-accordion-header" onclick="toggleCardAccordion(this)">
+              產品資訊
+              <span class="acc-arrow">&#9660;</span>
+            </div>
+            <div class="card-accordion-body">
+              <div class="card-accordion-content">
+                <p style="font-size:13px;color:#555;line-height:1.7">年齡要求：18歲或以上<br>最低年薪要求：HK$60,000<br>申請人須為香港居民</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    updateCardOdds();
+  }
+
+  // ═══ ODDS UPDATE — TABLE ═══
   function updateOdds(){
     products.forEach(p=>{
       const cell=document.getElementById('odds-'+p.id), detail=document.getElementById('detail-odds-'+p.id);
       if(!cell||!detail)return;
-      const o=p.odds, cap=o[0].toUpperCase()+o.slice(1);
+      const o=p.odds, labels={high:'高',medium:'中',low:'低'}, label=labels[o];
       if(currentState==='fresh'){
-        cell.innerHTML='<span class="odds-badge '+o+'">'+cap+'</span>';
-        detail.innerHTML='<div class="detail-section-title">批核機會</div><div class="detail-odds-value"><span class="odds-badge '+o+'">'+cap+'</span></div><p class="updated">最後更新：2026年2月25日</p><p>批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>';
+        cell.innerHTML='<span class="odds-badge '+o+'">'+label+'</span>';
+        detail.innerHTML='<div class="detail-section-title">批核機會</div><div class="detail-odds-value"><span class="odds-badge '+o+'">'+label+'</span></div><p class="updated">最後更新：2026年2月25日</p><p>批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>';
       }else if(currentState==='stale'){
-        cell.innerHTML='<span class="odds-badge '+o+'" style="opacity:.6">'+cap+'</span><span class="odds-stale-label">已過期</span>';
-        detail.innerHTML='<div class="detail-section-title">批核機會</div><div class="detail-odds-value"><span class="odds-badge '+o+'" style="opacity:.6">'+cap+'</span></div><p class="updated">最後更新：2025年11月12日</p><p><span class="refresh-link">登入 Credit Hero Club 以更新您的批核機會。</span></p><p style="margin-top:6px">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>';
+        cell.innerHTML='<span class="odds-badge '+o+'" style="opacity:.6">'+label+'</span><span class="odds-stale-label">已過期</span>';
+        detail.innerHTML='<div class="detail-section-title">批核機會</div><div class="detail-odds-value"><span class="odds-badge '+o+'" style="opacity:.6">'+label+'</span></div><p class="updated">最後更新：2025年11月12日</p><p><span class="refresh-link">登入 Credit Hero Club 以更新您的批核機會。</span></p><p style="margin-top:6px">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>';
       }else{
         cell.innerHTML='<span class="odds-signin">登入查看</span>';
         detail.innerHTML='<div class="detail-section-title">批核機會</div><div class="detail-odds-value" style="color:#888">批核機會：？</div><p><span class="refresh-link">免費查閱信貸報告以了解您的批核機會</span></p><p style="margin-top:6px">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</p>';
@@ -399,6 +607,33 @@
     });
   }
 
+  // ═══ ODDS UPDATE — CARDS ═══
+  function updateCardOdds(){
+    products.slice(0,6).forEach(p=>{
+      const el=document.getElementById('card-odds-content-'+p.id);
+      if(!el)return;
+      const o=p.odds, labels={high:'高',medium:'中',low:'低'}, label=labels[o];
+      if(currentState==='fresh'){
+        el.innerHTML=`
+          <div class="card-odds-badge-row"><span class="odds-badge ${o}">${label}</span></div>
+          <div class="card-odds-updated">最後更新：2026年2月25日</div>
+          <div class="card-odds-disclaimer">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</div>`;
+      }else if(currentState==='stale'){
+        el.innerHTML=`
+          <div class="card-odds-badge-row"><span class="odds-badge ${o}" style="opacity:.6">${label}</span> <span class="odds-stale-label" style="font-size:11px">已過期</span></div>
+          <div class="card-odds-updated">最後更新：2025年11月12日</div>
+          <p class="card-odds-refresh">登入 Credit Hero Club 以更新您的批核機會</p>
+          <div class="card-odds-disclaimer" style="margin-top:8px">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</div>`;
+      }else{
+        el.innerHTML=`
+          <div class="card-odds-badge-row" style="color:#888;font-weight:700;font-size:15px">批核機會：？</div>
+          <div class="card-odds-signin-cta"><a href="#">免費查閱信貸報告以了解您的批核機會</a></div>
+          <div class="card-odds-disclaimer" style="margin-top:10px">批核機會根據您的信貸狀況估算您獲批此產品的可能性，乃基於其他相似信貸狀況用戶的數據。此評估僅供參考，不保證獲批或被拒。</div>`;
+      }
+    });
+  }
+
+  // ═══ STATE / VIEW TOGGLES ═══
   function setState(state,btn){
     currentState=state;
     btn.closest('.btn-group').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
@@ -410,9 +645,24 @@
       else el.innerHTML='顯示 <strong>59</strong> 個貸款產品';
     });
     updateOdds();
+    updateCardOdds();
+  }
+
+  function setView(view,btn){
+    currentView=view;
+    btn.closest('.btn-group').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('table-view').style.display=(view==='cards')?'none':'block';
+    document.getElementById('cards-view').style.display=(view==='table')?'none':'block';
   }
 
   function toggleDetail(id){document.getElementById(id).classList.toggle('open')}
+
+  function toggleCardAccordion(header){
+    header.classList.toggle('open');
+    const body=header.nextElementSibling;
+    body.classList.toggle('open');
+  }
 </script>
 </body>
 </html>
