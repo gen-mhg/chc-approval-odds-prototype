@@ -338,22 +338,21 @@
   <div class="proto-row">
     <span class="plabel">Scenario:</span>
     <select id="scenario-picker" onchange="loadScenario(this.value)">
-      <optgroup label="Not Logged In to either MH or CHC (Guest)">
-        <option value="1a">1a — No MH, no CHC (new user)</option>
-        <option value="1b">1b — Has MH (not logged in), no CHC</option>
-        <option value="1c">1c/1d — Has onboarded CHC (not logged in) — MH login → detect CHC → 2FA</option>
+      <optgroup label="Up-to-date (sees odds immediately)">
+        <option value="2a">2a — MH + CHC logged in, onboarded</option>
+        <option value="2d">2d — CHC logged in, onboarded (auto-linked to MH)</option>
+        <option value="2f">2f — MH logged in, onboarded CHC, fresh data (backend fetch)</option>
       </optgroup>
-      <optgroup label="Logged In — Up-to-date Odds">
-        <option value="2a">2a — MH + CHC logged in, onboarded (best case)</option>
-        <option value="2d">2d — CHC logged in, onboarded (MH not logged in — auto-linked)</option>
+      <optgroup label="Not up-to-date — Expired">
+        <option value="2c">2c — MH logged in, CHC onboarded, expired → CHC login → refresh</option>
       </optgroup>
-      <optgroup label="Logged In — Expired Odds">
-        <option value="2c">2c — MH logged in, CHC onboarded, expired credit report</option>
-        <option value="2f">2f — MH logged in, CHC onboarded (not CHC logged in), fresh data → 2FA</option>
-      </optgroup>
-      <optgroup label="Logged In — Needs Onboarding">
-        <option value="2b">2b — MH logged in, no CHC account → sign up + onboard</option>
+      <optgroup label="Not up-to-date — Needs Onboarding">
+        <option value="2b">2b — MH logged in, no CHC → CHC sign up + onboard</option>
         <option value="2e">2e — CHC logged in, NOT onboarded → complete onboarding</option>
+      </optgroup>
+      <optgroup label="Not up-to-date — Guest (not logged in)">
+        <option value="1a">1a — No MH, no CHC (new user)</option>
+        <option value="1c">1c — Has onboarded CHC (not logged in) → MH login → detect CHC</option>
       </optgroup>
       <optgroup label="CHC Onboarding Paths">
         <option value="happy">Happy path — full CHC eKYC onboarding</option>
@@ -419,7 +418,7 @@
         <div class="calc-field"><label>貸款額 (HK$) <span class="info-sm">i</span></label><input type="text" value="200,000" readonly></div>
         <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
       </div>
-      <div class="odds-banner fresh"><span class="icon">&#10003;</span><div>您的批核機會 (Credit Odds) 評估已更新 · 根據您最新的信貸報告計算</div></div>
+      <div class="results-info">Approval odds last updated 12 Mar 2026</div>
       <div class="results-info">顯示 <strong>59</strong> 個貸款產品，按批核機會排序</div>
       <div class="product-table"><div class="product-table-inner">
         <div class="table-header">
@@ -438,10 +437,10 @@
     <div class="footer"><p>Prototype — CHC Credit Odds Journey v2 | MoneyHero HK | 2026-03-06</p></div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- ── PL PAGE: EXPIRED (Credit Odds stale) ── -->
-  <!-- ══════════════════════════════════════════ -->
-  <div class="screen" id="screen-pl-expired">
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- ── PL PAGE: NOT UP-TO-DATE (all non-fresh users) ── -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-pl-not-uptodate">
     <div class="site-header">
       <div class="hamburger">&#9776;</div>
       <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
@@ -462,7 +461,7 @@
         為什麼透過 MoneyHero 申請貸款？
         <span class="arrow">&#9660;</span>
       </div>
-      <div class="dev-note" data-note="pl-expired">Credit Odds data is stale. User needs to re-verify via TU SMS to refresh. Used in scenario 2c.</div>
+      <div class="dev-note" data-note="pl-not-uptodate">NOT UP-TO-DATE state — single UI for all non-fresh scenarios (2c, 2b, 2e, 1a, 1c).<br>• Dashes in Approval Odds column (no badges, no per-row links)<br>• Single CTA above table: "Login/sign up to Credit Hero Club to view your approval odds"<br>• CTA always links to CHC login/sign up page — CHC's existing routing handles the rest (refresh / onboarding / sign up)<br>• No routing logic needed on MH results page side<br>• Products shown in default sort order (no odds-based sorting)</div>
       <div class="tabs">
         <div class="tab active">全部貸款</div><div class="tab">&#128196; 稅季貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div>
       </div>
@@ -471,59 +470,7 @@
         <div class="calc-field"><label>貸款額 (HK$) <span class="info-sm">i</span></label><input type="text" value="200,000" readonly></div>
         <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
       </div>
-      <div class="odds-banner stale"><span class="icon">&#9888;</span><div>您的批核機會 (Credit Odds) 評估已過期。<a class="banner-link" onclick="goNext()">按此重新整理以更新</a></div></div>
-      <div class="results-info">顯示 <strong>59</strong> 個貸款產品，按批核機會排序 <span style="color:#a16207">（數據已過期）</span></div>
-      <div class="product-table"><div class="product-table-inner">
-        <div class="table-header">
-          <div>銀行 / 財務公司</div>
-          <div class="col-odds-header" style="opacity:.7">批核機會 (已過期) &#9432;</div>
-          <div>實際年利率</div>
-          <div>每月還款</div>
-          <div>總利息支出</div>
-          <div>MoneyHero 獨家</div>
-          <div></div>
-        </div>
-        <div id="pl-expired-products"></div>
-      </div></div>
-      <div class="cards-section"><div class="cards-section-title">產品詳情 <span class="count-badge">8</span></div><div id="pl-expired-cards"></div></div>
-    </div>
-    <div class="footer"><p>Prototype — CHC Credit Odds Journey v2 | MoneyHero HK | 2026-03-06</p></div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- ── PL PAGE: GUEST (Not logged in to anything) ── -->
-  <!-- ══════════════════════════════════════════════ -->
-  <div class="screen" id="screen-pl-guest">
-    <div class="site-header">
-      <div class="hamburger">&#9776;</div>
-      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
-      <div class="header-nav">
-        <a href="#">信用卡</a><a href="#" class="active-link">私人貸款</a><a href="#">保險</a><a href="#">按揭</a><a href="#">銀行戶口</a>
-      </div>
-      <div class="user-icon">&#128100;</div>
-    </div>
-    <div class="breadcrumb"><a href="#">&#127968; 首頁</a><span>/</span><a href="#">私人貸款</a><span>/</span>【借貸2026】即睇特快批核私人貸款利息及...</div>
-    <div class="page-heading">
-      <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
-      <div class="updated-date">更新日期: 2026年3月6日</div>
-      <div class="description">私人貸款（P Loan）及低息貸款比較...<span class="show-more">顯示更多</span></div>
-    </div>
-    <div class="container">
-      <div class="why-mh">
-        <img src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:contain;background:#fff;border:1px solid #eee;padding:2px">
-        為什麼透過 MoneyHero 申請貸款？
-        <span class="arrow">&#9660;</span>
-      </div>
-      <div class="dev-note" data-note="pl-guest">GUEST state — entry point for scenarios 1a, 1b, 1c/1d. User is not logged into MH or CHC. Banner CTA leads to MH Login/Sign Up. No Credit Odds visible. After MH login, system checks for existing CHC account:<br>• 1a/1b (no CHC): route to eKYC onboarding<br>• 1c/1d (has onboarded CHC): route to TU SMS 2FA (skip eKYC). Note: auto-link only works CHC→MH, not MH→CHC.</div>
-      <div class="tabs">
-        <div class="tab active">全部貸款</div><div class="tab">&#128196; 稅季貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div>
-      </div>
-      <div class="quick-summary"><span>+</span>「快速摘要」</div>
-      <div class="calc-row">
-        <div class="calc-field"><label>貸款額 (HK$) <span class="info-sm">i</span></label><input type="text" value="200,000" readonly></div>
-        <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
-      </div>
-      <div class="odds-banner guest"><span class="icon">&#128274;</span><div>免費查閱信貸報告，即睇您的批核機會 (Credit Odds)。<a class="banner-link" onclick="goNext()">立即登入 / 註冊</a></div></div>
+      <div class="odds-banner guest"><span class="icon">&#128274;</span><div><a class="banner-link" onclick="goNext()">Login/ sign up</a> to Credit Hero Club to view your approval odds</div></div>
       <div class="results-info">顯示 <strong>59</strong> 個貸款產品</div>
       <div class="product-table"><div class="product-table-inner">
         <div class="table-header">
@@ -535,61 +482,9 @@
           <div>MoneyHero 獨家</div>
           <div></div>
         </div>
-        <div id="pl-guest-products"></div>
+        <div id="pl-not-uptodate-products"></div>
       </div></div>
-      <div class="cards-section"><div class="cards-section-title">產品詳情 <span class="count-badge">8</span></div><div id="pl-guest-cards"></div></div>
-    </div>
-    <div class="footer"><p>Prototype — CHC Credit Odds Journey v2 | MoneyHero HK | 2026-03-06</p></div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- ── PL PAGE: GUEST (MH Logged In, but no CHC) ── -->
-  <!-- ══════════════════════════════════════════════════════ -->
-  <div class="screen" id="screen-pl-guest-loggedin">
-    <div class="site-header">
-      <div class="hamburger">&#9776;</div>
-      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
-      <div class="header-nav">
-        <a href="#">信用卡</a><a href="#" class="active-link">私人貸款</a><a href="#">保險</a><a href="#">按揭</a><a href="#">銀行戶口</a>
-      </div>
-      <div class="user-icon">&#128100;</div>
-    </div>
-    <div class="breadcrumb"><a href="#">&#127968; 首頁</a><span>/</span><a href="#">私人貸款</a><span>/</span>【借貸2026】即睇特快批核私人貸款利息及...</div>
-    <div class="page-heading">
-      <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
-      <div class="updated-date">更新日期: 2026年3月6日</div>
-      <div class="description">私人貸款（P Loan）及低息貸款比較...<span class="show-more">顯示更多</span></div>
-    </div>
-    <div class="container">
-      <div class="why-mh">
-        <img src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:contain;background:#fff;border:1px solid #eee;padding:2px">
-        為什麼透過 MoneyHero 申請貸款？
-        <span class="arrow">&#9660;</span>
-      </div>
-      <div class="dev-note" data-note="pl-guest-loggedin">LOGGED IN USER state — same UI for 3 sub-scenarios:<br>• 2b: MH logged in, no CHC → CTA: "Sign up for CHC + onboard"<br>• 2e: CHC logged in, not onboarded → CTA: "Complete onboarding"<br>• 2f: MH logged in, CHC onboarded but not CHC-logged-in, fresh data → CTA: "Authenticate 2FA"<br>Routing logic determines the CTA destination based on the user's actual state.</div>
-      <div class="tabs">
-        <div class="tab active">全部貸款</div><div class="tab">&#128196; 稅季貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div>
-      </div>
-      <div class="quick-summary"><span>+</span>「快速摘要」</div>
-      <div class="calc-row">
-        <div class="calc-field"><label>貸款額 (HK$) <span class="info-sm">i</span></label><input type="text" value="200,000" readonly></div>
-        <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
-      </div>
-      <div class="odds-banner guest"><span class="icon">&#128274;</span><div>即睇您的批核機會 (Credit Odds)。<a class="banner-link" onclick="goNext()">加入 Credit Hero Club</a> 免費查閱信貸報告</div></div>
-      <div class="results-info">顯示 <strong>59</strong> 個貸款產品</div>
-      <div class="product-table"><div class="product-table-inner">
-        <div class="table-header">
-          <div>銀行 / 財務公司</div>
-          <div class="col-odds-header">批核機會 &#9432;</div>
-          <div>實際年利率</div>
-          <div>每月還款</div>
-          <div>總利息支出</div>
-          <div>MoneyHero 獨家</div>
-          <div></div>
-        </div>
-        <div id="pl-guest-loggedin-products"></div>
-      </div></div>
-      <div class="cards-section"><div class="cards-section-title">產品詳情 <span class="count-badge">8</span></div><div id="pl-guest-loggedin-cards"></div></div>
+      <div class="cards-section"><div class="cards-section-title">產品詳情 <span class="count-badge">8</span></div><div id="pl-not-uptodate-cards"></div></div>
     </div>
     <div class="footer"><p>Prototype — CHC Credit Odds Journey v2 | MoneyHero HK | 2026-03-06</p></div>
   </div>
@@ -871,7 +766,7 @@ function checkPassword(){
     document.getElementById('password-gate').classList.add('hidden');
     document.getElementById('app-content').classList.add('visible');
     sessionStorage.setItem('proto-auth-journey-v2','1');
-    loadScenario('1a');
+    loadScenario('2a');
   } else {
     input.classList.add('error');err.textContent='Incorrect password';
     setTimeout(()=>{input.classList.remove('error');err.textContent=''},1500);
@@ -881,7 +776,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(sessionStorage.getItem('proto-auth-journey-v2')==='1'){
     document.getElementById('password-gate').classList.add('hidden');
     document.getElementById('app-content').classList.add('visible');
-    loadScenario('1a');
+    loadScenario('2a');
   }
   document.getElementById('gate-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword()});
   renderAllProducts();
@@ -906,10 +801,8 @@ function renderProductRow(p, mode){
   let oddsHTML='';
   if(mode==='fresh'){
     oddsHTML=`<span class="odds-badge ${p.odds}">${labels[p.odds]}</span>`;
-  } else if(mode==='expired'){
-    oddsHTML=`<span class="odds-badge ${p.odds}" style="opacity:.6">${labels[p.odds]}</span><span class="odds-stale-label">已過期</span>`;
   } else {
-    oddsHTML=`<span class="odds-signin" onclick="goNext()">登入查看</span>`;
+    oddsHTML=`<span style="color:#999;font-size:14px">–</span>`;
   }
   return `<div class="product-row">
     <div class="provider">
@@ -939,16 +832,10 @@ function renderProductCard(p, mode){
       <span class="cob-badge"><span class="odds-badge ${p.odds}">${labels[p.odds]}</span></span>
       <span class="cob-meta">更新：2026年3月6日</span>
     </div>`;
-  } else if(mode==='expired'){
-    oddsHTML=`<div class="card-odds-banner">
-      <span class="cob-label">批核機會 <span class="info-icon">&#9432;</span></span>
-      <span class="cob-badge"><span class="odds-badge ${p.odds}" style="opacity:.6">${labels[p.odds]}</span></span>
-      <span class="cob-stale">已過期</span>
-    </div>`;
   } else {
-    oddsHTML=`<div class="card-odds-guest">
-      <span class="cob-label">批核機會：？</span>
-      <a onclick="goNext()">免費查閱信貸報告以了解您的批核機會</a>
+    oddsHTML=`<div class="card-odds-banner" style="background:#f8f9fa">
+      <span class="cob-label">批核機會 <span class="info-icon">&#9432;</span></span>
+      <span style="color:#999;font-size:14px;margin-left:8px">–</span>
     </div>`;
   }
   return `<div class="product-card">
@@ -1000,14 +887,13 @@ function toggleCardAccordion(header){
 
 // ── Render All Products (tables + cards) ──
 function renderAllProducts(){
-  ['fresh','expired','guest','guest-loggedin'].forEach(mode=>{
-    const tableMode = (mode==='guest-loggedin') ? 'guest' : mode;
-    const tableId = mode==='guest-loggedin' ? 'pl-guest-loggedin-products' : `pl-${mode}-products`;
-    const cardsId = mode==='guest-loggedin' ? 'pl-guest-loggedin-cards' : `pl-${mode}-cards`;
+  ['fresh','not-uptodate'].forEach(mode=>{
+    const tableId = `pl-${mode}-products`;
+    const cardsId = `pl-${mode}-cards`;
     const tableEl = document.getElementById(tableId);
     const cardsEl = document.getElementById(cardsId);
-    if(tableEl) tableEl.innerHTML = products.map(p => renderProductRow(p, tableMode)).join('');
-    if(cardsEl) cardsEl.innerHTML = products.map(p => renderProductCard(p, tableMode)).join('');
+    if(tableEl) tableEl.innerHTML = products.map(p => renderProductRow(p, mode)).join('');
+    if(cardsEl) cardsEl.innerHTML = products.map(p => renderProductCard(p, mode)).join('');
   });
 }
 
@@ -1016,10 +902,8 @@ function renderAllProducts(){
 // ══════════════════════════════════════
 
 const stepMeta = {
-  'pl-fresh':           {title:'PL Page (Credit Odds updated)', desc:'User sees personalised Credit Odds sorted by approval likelihood'},
-  'pl-expired':         {title:'PL Page (Credit Odds expired)', desc:'Credit Odds data is stale, banner prompts to re-verify'},
-  'pl-guest':           {title:'PL Page (not logged in)', desc:'Guest sees login/sign-up prompt to view Credit Odds'},
-  'pl-guest-loggedin':  {title:'PL Page (Logged in user)', desc:'User is logged in but cannot see odds yet — CTA varies by sub-scenario (2FA / complete onboarding / sign up for CHC)'},
+  'pl-fresh':           {title:'PL Page (Up-to-date)', desc:'User sees personalised Credit Odds sorted by approval likelihood'},
+  'pl-not-uptodate':    {title:'PL Page (Not up-to-date)', desc:'No odds visible — dashes in column, CTA to login/sign up to CHC'},
   'mh-login':           {title:'MH Login / Sign Up', desc:'Enter email to log in or create a MoneyHero account'},
   'mh-otp':             {title:'MH Email OTP', desc:'Enter 6-digit verification code sent to email'},
   'ekyc-consent':       {title:'eKYC Landing (CHC Onboarding)', desc:'CHC onboarding entry — consent + eKYC introduction'},
@@ -1029,27 +913,10 @@ const stepMeta = {
 };
 
 const scenarios = {
-  // ── Not Logged In to either MH or CHC (Guest state) ──
-  '1a': {
-    name: '1a — No MH, no CHC (new user)',
-    desc: 'Brand new user: enters email + OTP → creates MH account → full CHC onboarding (eKYC + TU SMS)',
-    steps: ['pl-guest','mh-login','mh-otp','ekyc-consent','ekyc-verify','tu-sms','pl-fresh']
-  },
-  '1b': {
-    name: '1b — Has MH (not logged in), no CHC',
-    desc: 'Existing MH user: logs in via email + OTP → full CHC onboarding (eKYC + TU SMS)',
-    steps: ['pl-guest','mh-login','mh-otp','ekyc-consent','ekyc-verify','tu-sms','pl-fresh']
-  },
-  '1c': {
-    name: '1c/1d — Has onboarded CHC (not logged in)',
-    desc: 'User has onboarded CHC but is not logged in. After MH login + OTP, system detects existing CHC account → user authenticates into CHC via TU SMS (skips eKYC). Note: auto-link only works CHC→MH, not MH→CHC.',
-    steps: ['pl-guest','mh-login','mh-otp','tu-sms','pl-fresh']
-  },
-
-  // ── Logged In — Up-to-date Odds ──
+  // ── Up-to-date (sees odds immediately) ──
   '2a': {
-    name: '2a — MH + CHC logged in, onboarded (best case)',
-    desc: 'Best case: both sessions active, onboarded, fresh data → sees Credit Odds immediately. CHC sessions expire after 30min so data is always fresh.',
+    name: '2a — MH + CHC logged in, onboarded',
+    desc: 'Best case: both sessions active, onboarded, fresh data → sees Credit Odds immediately.',
     steps: ['pl-fresh']
   },
   '2d': {
@@ -1057,29 +924,41 @@ const scenarios = {
     desc: 'CHC session active → auto-linked to MH in same browser. Sees fresh Credit Odds immediately.',
     steps: ['pl-fresh']
   },
+  '2f': {
+    name: '2f — MH logged in, onboarded CHC, fresh data (backend fetch)',
+    desc: 'MH logged in, onboarded CHC account with fresh credit data. Backend fetches stored credit grade server-side — no active CHC session needed.',
+    steps: ['pl-fresh']
+  },
 
-  // ── Logged In — Expired / Needs 2FA ──
+  // ── Not up-to-date — Expired ──
   '2c': {
     name: '2c — MH logged in, CHC onboarded, expired credit report',
-    desc: 'MH active, CHC account exists but session expired, credit report outdated → sees expired odds → re-verifies via TU SMS to refresh',
-    steps: ['pl-expired','tu-sms','pl-fresh']
-  },
-  '2f': {
-    name: '2f — MH logged in, CHC onboarded (not CHC logged in), fresh data',
-    desc: 'MH active, system detects onboarded CHC account with fresh data but no active CHC session → user authenticates into CHC via 2FA. After 2FA → sees fresh odds.',
-    steps: ['pl-guest-loggedin','tu-sms','pl-fresh']
+    desc: 'MH active, onboarded CHC but credit report expired. CTA goes to CHC login/sign up → CHC routing detects expired → TU SMS refresh.',
+    steps: ['pl-not-uptodate','tu-sms','pl-fresh']
   },
 
-  // ── Logged In — Needs Onboarding ──
+  // ── Not up-to-date — Needs Onboarding ──
   '2b': {
     name: '2b — MH logged in, no CHC account',
-    desc: 'Logged into MH but no CHC account → lands on "Logged in user" state → signs up for CHC → full eKYC onboarding',
-    steps: ['pl-guest-loggedin','ekyc-consent','ekyc-verify','tu-sms','pl-fresh']
+    desc: 'Logged into MH but no CHC account. CTA goes to CHC login/sign up → CHC routing detects no account → full eKYC onboarding.',
+    steps: ['pl-not-uptodate','ekyc-consent','ekyc-verify','tu-sms','pl-fresh']
   },
   '2e': {
     name: '2e — CHC logged in, NOT onboarded',
-    desc: 'CHC session active (auto-linked to MH) but onboarding not completed (30% of CHC users). Lands on "Logged in user" state → completes eKYC onboarding.',
-    steps: ['pl-guest-loggedin','ekyc-consent','ekyc-verify','tu-sms','pl-fresh']
+    desc: 'CHC session active (auto-linked to MH) but onboarding not completed. CTA goes to CHC login/sign up → routing detects not onboarded → eKYC.',
+    steps: ['pl-not-uptodate','ekyc-consent','ekyc-verify','tu-sms','pl-fresh']
+  },
+
+  // ── Not up-to-date — Guest (not logged in) ──
+  '1a': {
+    name: '1a — No MH, no CHC (new user)',
+    desc: 'Brand new user. CTA goes to CHC login/sign up → MH login → creates account → full CHC onboarding (eKYC + TU SMS).',
+    steps: ['pl-not-uptodate','mh-login','mh-otp','ekyc-consent','ekyc-verify','tu-sms','pl-fresh']
+  },
+  '1c': {
+    name: '1c — Has onboarded CHC (not logged in)',
+    desc: 'User has onboarded CHC but is not logged in. CTA goes to CHC login/sign up → MH login → system detects CHC account → TU SMS (skips eKYC).',
+    steps: ['pl-not-uptodate','mh-login','mh-otp','tu-sms','pl-fresh']
   },
 
   // ── CHC Onboarding Paths ──
@@ -1091,7 +970,7 @@ const scenarios = {
   'unhappy': {
     name: 'Unhappy path — eKYC verification failure',
     desc: 'eKYC verification fails, case escalated to manual review',
-    steps: ['ekyc-consent','ekyc-verify','error','pl-guest']
+    steps: ['ekyc-consent','ekyc-verify','error','pl-not-uptodate']
   }
 };
 
