@@ -137,6 +137,7 @@
   .table-header{display:grid;grid-template-columns:220px 110px 90px 100px 100px 110px 100px;padding:12px 16px;background:#fafafa;border-bottom:2px solid #eee;font-size:11px;font-weight:600;color:#888;align-items:center}
   .table-header>div{padding:0 6px}
   .col-odds-header{display:flex;align-items:center;gap:4px;color:#e67e00;font-weight:700}
+  .tooltip-trigger{cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
   .product-row{display:grid;grid-template-columns:220px 110px 90px 100px 100px 110px 100px;padding:14px 16px;border-bottom:1px solid #f0f0f0;align-items:center}
   .product-row:hover{background:#fafcff}
   .product-row>div{padding:0 6px}
@@ -188,6 +189,10 @@
   .card-odds-banner{padding:14px 20px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:12px;background:#fafcff}
   .card-odds-banner .cob-label{font-size:13px;font-weight:600;color:#e67e00;white-space:nowrap;display:flex;align-items:center;gap:4px}
   .card-odds-banner .cob-label .info-icon{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:1.5px solid #e67e00;font-size:8px;cursor:pointer}
+
+  /* JS-positioned tooltip (avoids overflow clip) */
+  .floating-tooltip{display:none;position:fixed;background:#333;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:400;width:260px;line-height:1.5;white-space:normal;z-index:9000;box-shadow:0 4px 12px rgba(0,0,0,.2);pointer-events:none}
+  .floating-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#333}
   .card-odds-banner .cob-badge{flex-shrink:0}
   .card-odds-banner .cob-meta{font-size:11px;color:#999;margin-left:auto;white-space:nowrap}
   .card-odds-banner .cob-stale{font-size:11px;color:#a16207}
@@ -423,7 +428,7 @@
       <div class="product-table"><div class="product-table-inner">
         <div class="table-header">
           <div>銀行 / 財務公司</div>
-          <div class="col-odds-header">批核機會 &#9432;</div>
+          <div class="col-odds-header">批核機會 <span class="tooltip-trigger" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()" onclick="showTooltip(event)">&#9432;</span></div>
           <div>實際年利率</div>
           <div>每月還款</div>
           <div>總利息支出</div>
@@ -461,7 +466,7 @@
         為什麼透過 MoneyHero 申請貸款？
         <span class="arrow">&#9660;</span>
       </div>
-      <div class="dev-note" data-note="pl-not-uptodate">NOT UP-TO-DATE state — single UI for all non-fresh scenarios (2c, 2b, 2e, 1a, 1c).<br>• Dashes in Approval Odds column (no badges, no per-row links)<br>• Single CTA above table: "Login/sign up to Credit Hero Club to view your approval odds"<br>• CTA always links to CHC login/sign up page — CHC's existing routing handles the rest (refresh / onboarding / sign up)<br>• No routing logic needed on MH results page side<br>• Products shown in default sort order (no odds-based sorting)</div>
+      <div class="dev-note" data-note="pl-not-uptodate">NOT UP-TO-DATE state — single UI for all non-fresh scenarios (2c, 2b, 2e, 1a, 1c).<br>• Dashes in Approval Odds column (no badges, no per-row links)<br>• Single CTA above table: "Login/sign up to Credit Hero Club to view your approval odds"<br>• <strong>CTA destination for non-logged-in CHC/MH users:</strong> identity.moneyhero.com.hk/realms/moneyhero/protocol/openid-connect/auth?client_id=credithero&amp;redirect_uri=creditheroclub.moneyhero.com.hk/zh/auth (CHC login/sign-up page)<br>• CHC's existing routing handles the rest (refresh / onboarding / sign up)<br>• No routing logic needed on MH results page side<br>• Products shown in default sort order (no odds-based sorting)</div>
       <div class="tabs">
         <div class="tab active">全部貸款</div><div class="tab">&#128196; 稅季貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div>
       </div>
@@ -470,12 +475,12 @@
         <div class="calc-field"><label>貸款額 (HK$) <span class="info-sm">i</span></label><input type="text" value="200,000" readonly></div>
         <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
       </div>
-      <div class="odds-banner guest"><span class="icon">&#128274;</span><div><a class="banner-link" onclick="goNext()">Login/ sign up</a> to Credit Hero Club to view your approval odds</div></div>
+      <div class="odds-banner guest"><span class="icon">&#128274;</span><div><a class="banner-link" href="https://identity.moneyhero.com.hk/realms/moneyhero/protocol/openid-connect/auth?client_id=credithero&redirect_uri=https%3A%2F%2Fcreditheroclub.moneyhero.com.hk%2Fzh%2Fauth&response_type=code&scope=openid&state=ec56bc59bc2241799354739ab42121ca&code_challenge=K9lC54lxD7-qkpY_hMjY2QmoINnUwK4YW0GNYByVGyA&code_challenge_method=S256&ui_locales=zh" target="_blank" onclick="goNext()">Login/ sign up</a> to Credit Hero Club to view your approval odds</div></div>
       <div class="results-info">顯示 <strong>59</strong> 個貸款產品</div>
       <div class="product-table"><div class="product-table-inner">
         <div class="table-header">
           <div>銀行 / 財務公司</div>
-          <div class="col-odds-header">批核機會 &#9432;</div>
+          <div class="col-odds-header">批核機會 <span class="tooltip-trigger" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()" onclick="showTooltip(event)">&#9432;</span></div>
           <div>實際年利率</div>
           <div>每月還款</div>
           <div>總利息支出</div>
@@ -491,8 +496,10 @@
 
   <!-- ═══════════════════════════════════════════ -->
   <!-- ── MH LOGIN / SIGN UP (email entry) ── -->
+  <!-- ── Actual URL: identity.moneyhero.com.hk/realms/moneyhero/protocol/openid-connect/auth?client_id=credithero ── -->
   <!-- ═══════════════════════════════════════════ -->
   <div class="screen" id="screen-mh-login">
+    <div class="dev-note" data-note="mh-login" style="position:absolute;top:8px;left:8px;right:8px;z-index:10">Non-logged-in users land here via CTA.<br><strong>Actual URL:</strong> identity.moneyhero.com.hk/realms/moneyhero/protocol/openid-connect/auth?client_id=credithero&amp;redirect_uri=creditheroclub.moneyhero.com.hk/zh/auth<br>• This is the CHC/MH unified login page (Keycloak)<br>• After login/signup → redirects back to creditheroclub.moneyhero.com.hk/zh/auth<br>• CHC routing then handles: refresh / onboarding / sign up based on user state</div>
     <div style="min-height:100vh;background:#00162e;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;position:relative">
       <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%, rgba(0,114,170,0.3) 0%, transparent 60%);pointer-events:none"></div>
       <div style="position:relative;z-index:1;width:100%;max-width:400px;text-align:center">
@@ -747,6 +754,9 @@
 
 </div><!-- /screen-container -->
 
+<!-- Floating Tooltip -->
+<div class="floating-tooltip" id="floating-tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</div>
+
 <!-- Navigation -->
 <div class="nav-bar" id="nav-bar">
   <button class="nav-btn" id="btn-prev" onclick="goPrev()">&#8592; Previous</button>
@@ -828,13 +838,13 @@ function renderProductCard(p, mode){
   let oddsHTML='';
   if(mode==='fresh'){
     oddsHTML=`<div class="card-odds-banner">
-      <span class="cob-label">批核機會 <span class="info-icon">&#9432;</span></span>
+      <span class="cob-label">批核機會 <span class="info-icon tooltip-trigger" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()" onclick="showTooltip(event)">&#9432;</span></span>
       <span class="cob-badge"><span class="odds-badge ${p.odds}">${labels[p.odds]}</span></span>
       <span class="cob-meta">更新：2026年3月6日</span>
     </div>`;
   } else {
     oddsHTML=`<div class="card-odds-banner" style="background:#f8f9fa">
-      <span class="cob-label">批核機會 <span class="info-icon">&#9432;</span></span>
+      <span class="cob-label">批核機會 <span class="info-icon tooltip-trigger" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()" onclick="showTooltip(event)">&#9432;</span></span>
       <span style="color:#999;font-size:14px;margin-left:8px">–</span>
     </div>`;
   }
@@ -904,7 +914,7 @@ function renderAllProducts(){
 const stepMeta = {
   'pl-fresh':           {title:'PL Page (Up-to-date)', desc:'User sees personalised Credit Odds sorted by approval likelihood'},
   'pl-not-uptodate':    {title:'PL Page (Not up-to-date)', desc:'No odds visible — dashes in column, CTA to login/sign up to CHC'},
-  'mh-login':           {title:'MH Login / Sign Up', desc:'Enter email to log in or create a MoneyHero account'},
+  'mh-login':           {title:'MH Login / Sign Up', desc:'CHC/MH unified login page (identity.moneyhero.com.hk) — enter email to log in or create account, redirects back to creditheroclub.moneyhero.com.hk/zh/auth'},
   'mh-otp':             {title:'MH Email OTP', desc:'Enter 6-digit verification code sent to email'},
   'ekyc-consent':       {title:'eKYC Landing (CHC Onboarding)', desc:'CHC onboarding entry — consent + eKYC introduction'},
   'ekyc-verify':        {title:'eKYC Identity Verification', desc:'HKID OCR scan + selfie verification'},
@@ -1054,6 +1064,18 @@ function updateDevNotes(){
   document.querySelectorAll('.dev-note').forEach(note => {
     note.classList.toggle('visible', devNotesVisible);
   });
+}
+
+// ── Floating Tooltip ──
+function showTooltip(e){
+  const tip=document.getElementById('floating-tooltip');
+  const rect=e.target.getBoundingClientRect();
+  tip.style.display='block';
+  tip.style.left=Math.max(8, Math.min(window.innerWidth-268, rect.left+rect.width/2-130))+'px';
+  tip.style.top=(rect.top-tip.offsetHeight-10)+'px';
+}
+function hideTooltip(){
+  document.getElementById('floating-tooltip').style.display='none';
 }
 
 // Keyboard navigation
