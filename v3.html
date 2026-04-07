@@ -569,7 +569,7 @@
         <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
       </div>
       <!-- Locked banner (dynamic text via JS) -->
-      <div class="unlock-banner" onclick="goNext()">
+      <div class="unlock-banner" onclick="handleLockedBannerClick()">
         <span class="banner-lock">&#128274;</span>
         <div class="banner-text">
           <strong id="locked-banner-title">登入查看你的批核機會</strong>
@@ -924,10 +924,8 @@ function renderProductRow(p, mode){
   var oddsHTML='';
   if(mode==='unlocked'){
     oddsHTML='<span class="odds-badge odds-revealed '+p.odds+'">'+labels[p.odds]+'</span>';
-  } else if(mode==='consent'){
-    oddsHTML='<span class="tbl-odds-lock" onclick="handleLockClick()">&#128274; 解鎖</span>';
   } else {
-    oddsHTML='<span style="color:#999;font-size:14px">\u2013</span>';
+    oddsHTML='<span class="tbl-odds-lock" onclick="handleLockClick()">&#128274; 解鎖</span>';
   }
   return '<div class="product-row">'+
     '<div class="provider">'+
@@ -957,16 +955,11 @@ function renderProductCard(p, mode){
       '<span class="cob-badge"><span class="odds-badge odds-revealed '+p.odds+'">'+labels[p.odds]+'</span></span>'+
       '<span class="cob-meta">更新：2026年4月7日</span>'+
     '</div>';
-  } else if(mode==='consent'){
+  } else {
     oddsHTML='<div class="card-odds-locked" onclick="handleLockClick()">'+
       '<span class="lock-icon">&#128274;</span>'+
       '<span class="lock-text"><strong>批核機會</strong><span>點擊查看你獲批此產品的機率</span></span>'+
       '<span class="lock-cta">解鎖 &#8250;</span>'+
-    '</div>';
-  } else {
-    oddsHTML='<div class="card-odds-banner" style="background:#f8f9fa">'+
-      '<span class="cob-label">批核機會</span>'+
-      '<span style="color:#999;font-size:14px;margin-left:8px">\u2013</span>'+
     '</div>';
   }
   return '<div class="product-card">'+
@@ -1018,6 +1011,7 @@ function toggleCardAccordion(header){
 // ── Render All Products (tables + cards for all 3 states) ──
 function renderAllProducts(){
   ['unlocked','consent','locked'].forEach(function(mode){
+    // consent and locked both render lock icons — use same render mode
     var tableEl=document.getElementById('pl-'+mode+'-products');
     var cardsEl=document.getElementById('pl-'+mode+'-cards');
     if(tableEl) tableEl.innerHTML=products.map(function(p){return renderProductRow(p,mode)}).join('');
