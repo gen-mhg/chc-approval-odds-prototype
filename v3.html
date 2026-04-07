@@ -1166,23 +1166,14 @@ function goPrev(){
 }
 
 // ── Lock Click Handler ──
-// Consent modal appears on pl-locked when the NEXT step is pl-unlocked
-// (meaning this is the consent gate — S3, or the S3 step in S11/S27)
-// Otherwise, clicking navigates to the next step in the journey
-function isConsentStep(){
-  var sc=scenarios[currentScenario];
-  var nextStep=sc.steps[currentStepIndex+1];
-  return nextStep==='pl-unlocked' && sc.steps[currentStepIndex]==='pl-locked';
-}
-
+// Clicking a lock icon on any product row always shows the consent modal.
+// The banner CTA navigates to the next step in the journey.
 function handleLockClick(){
-  if(isConsentStep()) openConsent();
-  else goNext();
+  openConsent();
 }
 
 function handleLockedBannerClick(){
-  if(isConsentStep()) openConsent();
-  else goNext();
+  goNext();
 }
 
 // ── Dynamic Locked Banner Text ──
