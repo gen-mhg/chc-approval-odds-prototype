@@ -368,10 +368,8 @@
         <option value="S1">S1 — MH &#9989; CHC &#9989; Onboarded &#9989; Consented &#9989; Fresh &#9989;</option>
         <option value="S9">S9 — MH &#9989; Onboarded &#9989; Consented &#9989; Fresh &#9989; (backend fetch)</option>
       </optgroup>
-      <optgroup label="Needs consent — locked odds (S3)">
-        <option value="S3">S3 — MH &#9989; CHC &#9989; Onboarded &#9989; Consented &#10060; Fresh &#9989;</option>
-      </optgroup>
-      <optgroup label="Logged in — locked odds (S8, S10, S11, S16)">
+      <optgroup label="Logged in — locked odds (S3, S8, S10, S11, S16)">
+        <option value="S3">S3 — MH &#9989; CHC &#9989; Onboarded &#9989; Consented &#10060; (consent modal)</option>
         <option value="S8">S8 — MH &#9989; CHC &#9989; Onboarded &#10060; (complete onboarding)</option>
         <option value="S10">S10 — MH &#9989; Onboarded &#9989; Consented &#9989; Fresh &#10060; (needs 2FA)</option>
         <option value="S11">S11/S12 — MH &#9989; Onboarded &#9989; Consented &#10060; (needs 2FA &#8594; consent)</option>
@@ -1022,9 +1020,8 @@ function renderAllProducts(){
 // ── SCENARIO DEFINITIONS ──
 // ══════════════════════════════════════
 const stepMeta={
-  'pl-unlocked':  {title:'PL Page (Up-to-date)', desc:'User has consented — sees personalised Credit Odds'},
-  'pl-consent':   {title:'PL Page (Needs Consent)', desc:'User has fresh data but hasn\'t consented — lock icons, consent modal available'},
-  'pl-locked':    {title:'PL Page (No Odds)', desc:'User needs to authenticate or onboard before odds are available'},
+  'pl-unlocked':  {title:'PL Page (Up-to-date — show odds)', desc:'User has consented — sees personalised Credit Odds'},
+  'pl-locked':    {title:'PL Page (Locked odds)', desc:'Odds locked — user needs to consent, authenticate, or onboard'},
   'mh-login':     {title:'MH Login / Sign Up', desc:'CHC/MH unified login page (Keycloak)'},
   'mh-otp':       {title:'MH Email OTP', desc:'Enter 6-digit verification code sent to email'},
   'ekyc-consent': {title:'eKYC Landing (CHC Onboarding)', desc:'CHC onboarding entry — consent + eKYC + approval odds opt-in'},
@@ -1040,9 +1037,9 @@ const scenarios={
     steps:['pl-unlocked']
   },
   'S3':{
-    name:'S3 — Needs consent',
-    desc:'MH + CHC logged in, onboarded, fresh data, but has NOT consented to approval odds. Sees consent modal on page.',
-    steps:['pl-consent','pl-unlocked']
+    name:'S3 — Logged in, needs consent',
+    desc:'MH + CHC logged in, onboarded, fresh data, but has NOT consented to approval odds. Consent modal on page.',
+    steps:['pl-locked','pl-unlocked']
   },
   'S8':{
     name:'S8 — CHC logged in, not onboarded',
@@ -1062,7 +1059,7 @@ const scenarios={
   'S11':{
     name:'S11/S12 — MH logged in, onboarded, NOT consented',
     desc:'MH logged in, CHC onboarded but not consented. 2FA \u2192 consent (S3) \u2192 odds.',
-    steps:['pl-locked','tu-sms','pl-consent','pl-unlocked']
+    steps:['pl-locked','tu-sms','pl-locked','pl-unlocked']
   },
   'S16':{
     name:'S16 — MH logged in, no CHC',
@@ -1077,7 +1074,7 @@ const scenarios={
   'S27':{
     name:'S27/S28 — Guest, onboarded, NOT consented',
     desc:'Not logged in, has CHC but not consented. Login \u2192 2FA \u2192 consent (S3) \u2192 odds.',
-    steps:['pl-locked','mh-login','mh-otp','tu-sms','pl-consent','pl-unlocked']
+    steps:['pl-locked','mh-login','mh-otp','tu-sms','pl-locked','pl-unlocked']
   },
   'S32':{
     name:'S32 — Guest, no CHC',
@@ -1169,19 +1166,22 @@ function goPrev(){
 }
 
 // ── Lock Click Handler ──
-// Consent modal only appears on pl-consent screen (S3 state)
-// On pl-locked screen, clicking always navigates to next step
-function handleLockClick(){
+// Consent modal appears on pl-locked when the NEXT step is pl-unlocked
+// (meaning this is the consent gate — S3, or the S3 step in S11/S27)
+// Otherwise, clicking navigates to the next step in the journey
+function isConsentStep(){
   var sc=scenarios[currentScenario];
-  var currentStep=sc.steps[currentStepIndex];
-  if(currentStep==='pl-consent') openConsent();
+  var nextStep=sc.steps[currentStepIndex+1];
+  return nextStep==='pl-unlocked' && sc.steps[currentStepIndex]==='pl-locked';
+}
+
+function handleLockClick(){
+  if(isConsentStep()) openConsent();
   else goNext();
 }
 
 function handleLockedBannerClick(){
-  var sc=scenarios[currentScenario];
-  var currentStep=sc.steps[currentStepIndex];
-  if(currentStep==='pl-consent') openConsent();
+  if(isConsentStep()) openConsent();
   else goNext();
 }
 
