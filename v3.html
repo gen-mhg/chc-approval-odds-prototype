@@ -1063,8 +1063,8 @@ const scenarios={
   },
   'S11':{
     name:'S11/S12 — MH logged in, onboarded, NOT consented, needs 2FA',
-    desc:'MH logged in, CHC onboarded but not consented. Needs 2FA then consent modal.',
-    steps:['pl-locked','tu-sms','pl-consent','pl-unlocked']
+    desc:'MH logged in, CHC onboarded but not consented. Consent modal on PL page \u2192 2FA \u2192 odds.',
+    steps:['pl-locked','tu-sms','pl-unlocked']
   },
   'S16':{
     name:'S16 — MH logged in, no CHC',
@@ -1173,7 +1173,7 @@ function goPrev(){
 // ── Lock Click Handler ──
 // S3: consent modal on pl-consent screen (already logged in)
 // S27, S32: consent modal on pl-locked screen (guest, before login)
-var consentScenarios=['S3','S27','S32'];
+var consentScenarios=['S3','S11','S27','S32'];
 function handleLockClick(){
   if(consentScenarios.indexOf(currentScenario)!==-1) openConsent();
   else goNext();
