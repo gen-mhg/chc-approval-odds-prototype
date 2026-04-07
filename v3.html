@@ -364,21 +364,20 @@
   <div class="proto-row">
     <span class="plabel">Scenario:</span>
     <select id="scenario-picker" onchange="loadScenario(this.value)">
-      <optgroup label="Up-to-date (S1)">
+      <optgroup label="Up-to-date — show odds (S1, S9)">
         <option value="S1">S1 — MH &#9989; CHC &#9989; Onboarded &#9989; Consented &#9989; Fresh &#9989;</option>
+        <option value="S9">S9 — MH &#9989; Onboarded &#9989; Consented &#9989; Fresh &#9989; (backend fetch)</option>
       </optgroup>
-      <optgroup label="Needs consent (S3)">
+      <optgroup label="Needs consent — locked odds (S3)">
         <option value="S3">S3 — MH &#9989; CHC &#9989; Onboarded &#9989; Consented &#10060; Fresh &#9989;</option>
       </optgroup>
-      <optgroup label="Logged in — needs 2FA (S9, S11)">
-        <option value="S9">S9/S10 — MH &#9989; Onboarded &#9989; Consented &#9989; (needs 2FA)</option>
-        <option value="S11">S11/S12 — MH &#9989; Onboarded &#9989; Consented &#10060; (needs 2FA + consent)</option>
-      </optgroup>
-      <optgroup label="Logged in — needs onboarding (S8, S16)">
+      <optgroup label="Logged in — locked odds (S8, S10, S11, S16)">
         <option value="S8">S8 — MH &#9989; CHC &#9989; Onboarded &#10060; (complete onboarding)</option>
+        <option value="S10">S10 — MH &#9989; Onboarded &#9989; Consented &#9989; Fresh &#10060; (needs 2FA)</option>
+        <option value="S11">S11/S12 — MH &#9989; Onboarded &#9989; Consented &#10060; (needs 2FA &#8594; consent)</option>
         <option value="S16">S16 — MH &#9989; No CHC (sign up + onboard)</option>
       </optgroup>
-      <optgroup label="Guest (S25, S27, S32)">
+      <optgroup label="Guest — locked odds (S25, S27, S32)">
         <option value="S25">S25/S26 — Guest, Onboarded &#9989; Consented &#9989;</option>
         <option value="S27">S27/S28 — Guest, Onboarded &#9989; Consented &#10060;</option>
         <option value="S32">S32 — Guest, No CHC</option>
@@ -1051,14 +1050,19 @@ const scenarios={
     steps:['pl-locked','ekyc-consent','ekyc-verify','tu-sms','pl-unlocked']
   },
   'S9':{
-    name:'S9/S10 — MH logged in, onboarded, consented, needs 2FA',
-    desc:'MH logged in, CHC onboarded + consented but CHC session expired. Needs 2FA to refresh.',
+    name:'S9 — MH logged in, onboarded, consented, fresh',
+    desc:'MH logged in, CHC onboarded + consented + fresh data. Backend fetches stored grade \u2014 sees odds immediately.',
+    steps:['pl-unlocked']
+  },
+  'S10':{
+    name:'S10 — MH logged in, onboarded, consented, expired',
+    desc:'MH logged in, CHC onboarded + consented but report expired. Needs 2FA to refresh.',
     steps:['pl-locked','tu-sms','pl-unlocked']
   },
   'S11':{
-    name:'S11/S12 — MH logged in, onboarded, NOT consented, needs 2FA',
-    desc:'MH logged in, CHC onboarded but not consented. Consent modal on PL page \u2192 2FA \u2192 odds.',
-    steps:['pl-locked','tu-sms','pl-unlocked']
+    name:'S11/S12 — MH logged in, onboarded, NOT consented',
+    desc:'MH logged in, CHC onboarded but not consented. 2FA \u2192 consent (S3) \u2192 odds.',
+    steps:['pl-locked','tu-sms','pl-consent','pl-unlocked']
   },
   'S16':{
     name:'S16 — MH logged in, no CHC',
@@ -1072,8 +1076,8 @@ const scenarios={
   },
   'S27':{
     name:'S27/S28 — Guest, onboarded, NOT consented',
-    desc:'Not logged in, has CHC but not consented. Consent modal on PL page \u2192 login \u2192 2FA \u2192 odds.',
-    steps:['pl-locked','mh-login','mh-otp','tu-sms','pl-unlocked']
+    desc:'Not logged in, has CHC but not consented. Login \u2192 2FA \u2192 consent (S3) \u2192 odds.',
+    steps:['pl-locked','mh-login','mh-otp','tu-sms','pl-consent','pl-unlocked']
   },
   'S32':{
     name:'S32 — Guest, no CHC',
@@ -1165,16 +1169,19 @@ function goPrev(){
 }
 
 // ── Lock Click Handler ──
-// S3: consent modal on pl-consent screen (already logged in)
-// S27, S32: consent modal on pl-locked screen (guest, before login)
-var consentScenarios=['S3','S8','S11','S16','S27','S32'];
+// Consent modal only appears on pl-consent screen (S3 state)
+// On pl-locked screen, clicking always navigates to next step
 function handleLockClick(){
-  if(consentScenarios.indexOf(currentScenario)!==-1) openConsent();
+  var sc=scenarios[currentScenario];
+  var currentStep=sc.steps[currentStepIndex];
+  if(currentStep==='pl-consent') openConsent();
   else goNext();
 }
 
 function handleLockedBannerClick(){
-  if(consentScenarios.indexOf(currentScenario)!==-1) openConsent();
+  var sc=scenarios[currentScenario];
+  var currentStep=sc.steps[currentStepIndex];
+  if(currentStep==='pl-consent') openConsent();
   else goNext();
 }
 
@@ -1186,7 +1193,7 @@ function updateLockedBanner(){
 
   var texts = {
     'S8':  {t:'完成 Credit Hero Club 開戶', s:'完成身份驗證以查看你的批核機會'},
-    'S9':  {t:'驗證你的 Credit Hero Club 帳戶', s:'透過 2FA 驗證以查看你的批核機會'},
+    'S10': {t:'驗證你的 Credit Hero Club 帳戶', s:'透過 2FA 驗證以查看你的批核機會'},
     'S11': {t:'驗證你的 Credit Hero Club 帳戶', s:'透過 2FA 驗證以查看你的批核機會'},
     'S16': {t:'加入 Credit Hero Club', s:'免費註冊查看你獲批各產品的機率'},
     'S25': {t:'登入查看你的批核機會', s:'登入 Credit Hero Club 以查看你的個人化批核機會'},
