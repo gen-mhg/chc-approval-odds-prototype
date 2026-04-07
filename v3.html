@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoneyHero - PL Result Page v3 (Locked Odds + Scenarios)</title>
+<style>
+  /* ── Password Gate ── */
+  #password-gate{position:fixed;inset:0;z-index:9999;background:#1a1a2e;display:flex;align-items:center;justify-content:center}
+  #password-gate.hidden{display:none}
+  .gate-box{background:#fff;border-radius:16px;padding:40px 36px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3);max-width:380px;width:90%}
+  .gate-box h2{font-size:18px;color:#333;margin-bottom:6px}
+  .gate-box p{font-size:13px;color:#888;margin-bottom:24px}
+  .gate-box input{width:100%;padding:12px 16px;border:2px solid #ddd;border-radius:8px;font-size:15px;text-align:center;outline:none}
+  .gate-box input:focus{border-color:#00b7b2}
+  .gate-box input.error{border-color:#ef4444;animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .gate-box button{margin-top:16px;width:100%;padding:12px;border:none;border-radius:8px;background:#00b7b2;color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+  .gate-error{color:#ef4444;font-size:12px;margin-top:8px;min-height:18px}
+  #app-content{display:none}
+  #app-content.visible{display:block}
+
+  /* ── Base (mobile-first) ── */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang HK",sans-serif;background:#f5f5f5;color:#333;font-size:14px;line-height:1.5;max-width:430px;margin:0 auto;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  a{text-decoration:none;color:inherit}
+  img{display:block;max-width:100%}
+  @media(min-width:431px){body{box-shadow:0 0 40px rgba(0,0,0,.08);min-height:100vh}}
+
+  /* ── Proto Controls ── */
+  .proto-bar{position:sticky;top:0;z-index:1000;background:#1a1a2e;color:#fff;padding:10px 16px;display:flex;flex-direction:column;gap:8px}
+  .proto-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .proto-bar .plabel{font-size:10px;text-transform:uppercase;letter-spacing:.8px;opacity:.5;flex-shrink:0}
+  .proto-bar select{padding:6px 10px;border-radius:5px;border:1.5px solid rgba(255,255,255,.3);background:#2a2a4e;color:#fff;font-size:11px;font-weight:600;cursor:pointer;max-width:420px}
+  .proto-bar select option{background:#2a2a4e;color:#fff}
+  .proto-bar select optgroup{font-weight:700;color:#aaa}
+  .proto-bar button{padding:6px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:5px;background:transparent;color:#fff;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .proto-bar button:hover{border-color:#fff}
+  .proto-bar button.active{background:#fff;color:#1a1a2e;border-color:#fff}
+  .proto-badge{font-size:9px;background:#e67e00;color:#fff;padding:2px 8px;border-radius:10px;font-weight:700;margin-left:auto}
+
+  /* ── Step Pills ── */
+  .step-pills{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 0}
+  .step-pills::-webkit-scrollbar{display:none}
+  .step-pill{flex-shrink:0;padding:5px 12px;border-radius:16px;font-size:10px;font-weight:600;cursor:pointer;border:1.5px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);transition:all .2s;white-space:nowrap}
+  .step-pill:hover{border-color:rgba(255,255,255,.5);color:#fff}
+  .step-pill.active{background:#00b7b2;color:#fff;border-color:#00b7b2}
+  .step-pill.completed{background:rgba(0,183,178,.3);color:#fff;border-color:#00b7b2}
+
+  /* ── Step Info Bar ── */
+  .step-info{background:#2a2a4e;padding:10px 16px;display:flex;align-items:center;gap:12px}
+  .step-info .step-number{background:#00b7b2;color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+  .step-info .step-title{font-size:13px;font-weight:600;color:#fff}
+  .step-info .step-desc{font-size:11px;color:rgba(255,255,255,.6)}
+
+  /* ── Developer Notes ── */
+  .dev-note{display:none;background:#fef3cd;border:1px solid #ffc107;border-radius:6px;padding:10px 14px;margin:8px 16px;font-size:12px;color:#664d03;line-height:1.6}
+  .dev-note.visible{display:block}
+  .dev-note strong{color:#332700}
+  .dev-note::before{content:'DEV NOTE';display:block;font-size:9px;font-weight:700;letter-spacing:1px;color:#997404;margin-bottom:4px}
+
+  /* ── Screen Container ── */
+  .screen-container{position:relative;min-height:calc(100vh - 200px)}
+  .screen{display:none;animation:fadeIn .3s ease}
+  .screen.active{display:block}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+  /* ── Navigation ── */
+  .nav-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px}
+  .nav-btn{padding:8px 16px;border-radius:8px;border:2px solid #00b7b2;background:#fff;color:#00b7b2;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+  .nav-btn:hover{background:#00b7b2;color:#fff}
+  .nav-btn:disabled{opacity:.3;cursor:not-allowed;border-color:#ccc;color:#ccc}
+  .nav-btn:disabled:hover{background:#fff}
+  .nav-btn.primary{background:#00b7b2;color:#fff}
+  .nav-btn.primary:hover{background:#009e99}
+
+  /* ── Header (mobile-first) ── */
+  .site-header{background:#fff;border-bottom:1px solid #e0e0e0;padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+  .logo-img{height:24px}
+  .hamburger{font-size:22px;color:#333;cursor:pointer}
+  .user-icon{width:32px;height:32px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:16px;color:#888}
+  .header-nav{display:none}
+
+  /* ── Breadcrumb ── */
+  .breadcrumb{padding:8px 16px;font-size:11px;color:#888;background:#fff}
+  .breadcrumb a{color:#888}
+  .breadcrumb span{margin:0 4px;color:#ccc}
+
+  /* ── Page Heading ── */
+  .page-heading{background:#fff;padding:16px 16px 14px;border-bottom:1px solid #eee}
+  .page-heading h1{font-size:22px;font-weight:800;color:#222;line-height:1.3;margin-bottom:6px}
+  .page-heading .updated-date{font-size:12px;color:#999;margin-bottom:12px}
+  .page-heading .description{font-size:14px;color:#555;line-height:1.6}
+  .page-heading .show-more{color:#222;font-weight:600;text-decoration:underline;cursor:pointer;display:inline-block;margin-top:4px;font-size:14px}
+
+  /* ── Container ── */
+  .container{padding:16px 12px}
+
+  /* ── Why MoneyHero ── */
+  .why-mh{background:#fff;border:1px solid #eee;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:#333}
+  .why-mh img{width:28px;height:28px;border-radius:50%}
+  .why-mh .arrow{margin-left:auto;font-size:12px;color:#999}
+
+  /* ── Tabs ── */
+  .tabs{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex-shrink:0;padding:8px 16px;border-radius:20px;background:#fff;border:1px solid #ddd;font-size:13px;color:#555;cursor:pointer;white-space:nowrap}
+  .tab.active{background:#00b7b2;color:#fff;border-color:#00b7b2}
+
+  /* ── Quick Summary ── */
+  .quick-summary{font-size:13px;font-weight:600;color:#333;margin-bottom:14px;cursor:pointer;display:flex;align-items:center;gap:6px}
+
+  /* ── Loan Calculator ── */
+  .calc-row{display:flex;gap:12px;margin-bottom:18px}
+  .calc-field{flex:1}
+  .calc-field label{font-size:12px;color:#777;display:flex;align-items:center;gap:4px;margin-bottom:4px}
+  .calc-field label .info-sm{width:14px;height:14px;border-radius:50%;border:1px solid #bbb;display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#999}
+  .calc-field input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:15px;font-weight:600;color:#333;background:#fff}
+
+  /* ── Unlock Banner (v3 consent-based) ── */
+  .unlock-banner{display:flex;align-items:center;gap:14px;padding:16px 18px;background:#fff;border:1.5px solid #b2dfdb;border-radius:12px;margin-bottom:16px;cursor:pointer;transition:all .2s}
+  .unlock-banner:hover{border-color:#00b7b2;box-shadow:0 2px 8px rgba(0,183,178,.12)}
+  .unlock-banner .banner-lock{font-size:22px;flex-shrink:0}
+  .unlock-banner .banner-text{flex:1}
+  .unlock-banner .banner-text strong{display:block;font-size:14px;color:#00796b;margin-bottom:2px}
+  .unlock-banner .banner-text span{font-size:12px;color:#666;line-height:1.4}
+  .unlock-banner .banner-btn{padding:10px 22px;border-radius:8px;border:none;background:#00b7b2;color:#fff;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap}
+  .unlock-banner.unlocked{border-color:#c8e6c9;background:#f6fdf6;cursor:default}
+  .unlock-banner.unlocked:hover{box-shadow:none}
+  .unlock-banner.unlocked .banner-text strong{color:#2e7d32}
+
+  /* ── Fresh Banner (v2 style) ── */
+  .odds-banner{border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500}
+  .odds-banner .icon{font-size:18px;flex-shrink:0}
+  .odds-banner.fresh{background:#e6f9f0;border:1px solid #b2ecd3;color:#1a6b44}
+
+  /* ── Results Info ── */
+  .results-info{font-size:13px;color:#777;margin-bottom:12px}
+  .results-info strong{color:#333}
+
+  /* ── Product Table (v2 grid layout) ── */
+  .product-table{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:24px}
+  .product-table::-webkit-scrollbar{height:6px}
+  .product-table::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px}
+  .product-table-inner{min-width:920px}
+  .table-header{display:grid;grid-template-columns:220px 110px 90px 100px 100px 110px 100px;padding:12px 16px;background:#fafafa;border-bottom:2px solid #eee;font-size:11px;font-weight:600;color:#888;align-items:center}
+  .table-header>div{padding:0 6px}
+  .col-odds-header{display:flex;align-items:center;gap:4px;color:#e67e00;font-weight:700}
+  .tooltip-trigger{cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+  .product-row{display:grid;grid-template-columns:220px 110px 90px 100px 100px 110px 100px;padding:14px 16px;border-bottom:1px solid #f0f0f0;align-items:center}
+  .product-row:hover{background:#fafcff}
+  .product-row>div{padding:0 6px}
+  .provider{display:flex;align-items:center;gap:10px}
+  .provider-logo{width:48px;height:48px;border-radius:8px;border:1px solid #eee;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#fff;padding:4px}
+  .provider-logo img{width:100%;height:100%;object-fit:contain}
+  .provider-name{font-size:12px;font-weight:600;color:#222;line-height:1.3}
+  .provider-tag{display:inline-block;font-size:9px;color:#fff;background:#e67e00;border-radius:3px;padding:1px 6px;margin-top:2px;font-weight:600}
+  .provider-tag.tax{background:#0072aa}.provider-tag.fast{background:#8e24aa}.provider-tag.exclusive{background:#d32f2f}.provider-tag.balance{background:#00695c}
+  .provider-reward{font-size:10px;color:#e67e00;margin-top:2px}
+  .cell .value{font-weight:700;color:#222;font-size:13px}
+  .cell .label{font-size:9px;color:#999;margin-top:1px}
+  .btn-apply{padding:7px 10px;border-radius:6px;border:2px solid #e67e00;background:#fff;color:#e67e00;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .btn-apply:hover{background:#e67e00;color:#fff}
+
+  /* ── Odds Cell ── */
+  .odds-cell{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .odds-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+  .odds-badge.high{background:#e6f9f0;color:#15803d}
+  .odds-badge.high::before{content:'';width:7px;height:7px;border-radius:50%;background:#22c55e}
+  .odds-badge.medium{background:#fff7e6;color:#a16207}
+  .odds-badge.medium::before{content:'';width:7px;height:7px;border-radius:50%;background:#eab308}
+  .odds-badge.low{background:#fef2f2;color:#b91c1c}
+  .odds-badge.low::before{content:'';width:7px;height:7px;border-radius:50%;background:#ef4444}
+
+  /* ── Lock icon in table (v3) ── */
+  .tbl-odds-lock{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;border:1.5px dashed #cde0de;background:#f8fafb;font-size:11px;color:#888;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .tbl-odds-lock:hover{border-color:#00b7b2;color:#666}
+
+  /* ── Product Cards (v2 style, below table) ── */
+  .cards-section{margin-top:8px}
+  .cards-section-title{font-size:16px;font-weight:700;color:#222;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .cards-section-title .count-badge{background:#e67e00;color:#fff;font-size:11px;font-weight:700;border-radius:12px;padding:2px 10px}
+  .product-card{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px;overflow:hidden}
+  .card-header{padding:14px 16px;display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
+  .card-logo{width:52px;height:52px;border-radius:10px;border:1px solid #eee;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;background:#fff;padding:4px}
+  .card-logo img{width:100%;height:100%;object-fit:contain}
+  .card-header-info{flex:1;min-width:0}
+  .card-product-name{font-size:15px;font-weight:700;color:#222;line-height:1.4;margin-bottom:4px}
+  .card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+  .card-tag{font-size:10px;color:#fff;background:#e67e00;border-radius:3px;padding:2px 8px;font-weight:600}
+  .card-tag.tax{background:#0072aa}.card-tag.fast{background:#8e24aa}.card-tag.exclusive{background:#d32f2f}.card-tag.balance{background:#00695c}
+  .card-reward-line{font-size:12px;color:#e67e00;font-weight:600}
+  .card-header-apply{flex-shrink:0;align-self:center;width:100%;margin-top:8px}
+  .card-header-apply .btn-apply{padding:12px 20px;font-size:14px;width:100%;text-align:center;display:block}
+  .card-stats{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0}
+  .card-stat{padding:10px 12px;text-align:center;border-right:1px solid #f0f0f0;border-bottom:1px solid #f0f0f0}
+  .card-stat:nth-child(2n){border-right:none}
+  .card-stat:nth-last-child(-n+2){border-bottom:none}
+  .card-stat .stat-label{font-size:11px;color:#888;margin-bottom:4px}
+  .card-stat .stat-value{font-size:14px;font-weight:700;color:#222}
+
+  /* Card odds banner (unlocked) */
+  .card-odds-banner{padding:12px 16px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:12px;background:#fafcff}
+  .card-odds-banner .cob-label{font-size:13px;font-weight:600;color:#e67e00;white-space:nowrap;display:flex;align-items:center;gap:4px}
+  .card-odds-banner .cob-label .info-icon{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;border:1.5px solid #e67e00;font-size:8px;cursor:pointer}
+  .card-odds-banner .cob-badge{flex-shrink:0}
+  .card-odds-banner .cob-meta{font-size:11px;color:#999;margin-left:auto;white-space:nowrap}
+
+  /* Card odds locked */
+  .card-odds-locked{padding:12px 16px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#f8fafb 0%,#f0f4f5 100%);cursor:pointer;border-bottom:1px dashed #cde0de;transition:all .15s}
+  .card-odds-locked:hover{background:#f0fafa}
+  .card-odds-locked .lock-icon{font-size:16px;color:#999}
+  .card-odds-locked .lock-text{flex:1}
+  .card-odds-locked .lock-text strong{font-size:13px;font-weight:600;color:#e67e00;display:block}
+  .card-odds-locked .lock-text span{font-size:11px;color:#888}
+  .card-odds-locked .lock-cta{font-size:11px;font-weight:700;color:#00b7b2;flex-shrink:0}
+
+  /* Card accordions */
+  .card-accordions{padding:0}
+  .card-accordion{border-bottom:1px solid #f0f0f0}
+  .card-accordion:last-child{border-bottom:none}
+  .card-accordion-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#333}
+  .card-accordion-header:hover{background:#fafafa}
+  .card-accordion-header .acc-arrow{font-size:12px;color:#999;transition:transform .2s}
+  .card-accordion-header.open .acc-arrow{transform:rotate(180deg)}
+  .card-accordion-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+  .card-accordion-body.open{max-height:400px}
+  .card-accordion-content{padding:0 16px 14px}
+  .card-reward-detail{display:flex;align-items:center;gap:10px;padding:8px 0}
+  .card-reward-detail .reward-icon{font-size:20px}
+  .card-reward-detail .reward-text{font-size:14px;font-weight:600;color:#e67e00}
+  .card-steps{list-style:none;counter-reset:step}
+  .card-steps li{counter-increment:step;position:relative;padding:6px 0 6px 32px;font-size:13px;color:#555}
+  .card-steps li::before{content:counter(step);position:absolute;left:0;top:5px;width:22px;height:22px;border-radius:50%;background:#e67e00;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .card-features li{padding:4px 0;font-size:13px;color:#555;list-style:disc;margin-left:16px}
+
+  /* ═══ FULL-PAGE SCREENS ═══ */
+  .fullpage-screen{max-width:480px;margin:20px auto;padding:0 16px}
+  .fullpage-card{background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,.1);overflow:hidden}
+  .fullpage-header{padding:24px 20px 16px;text-align:center;border-bottom:1px solid #f0f0f0}
+  .fullpage-header img{height:32px;margin:0 auto 16px}
+  .fullpage-header h2{font-size:20px;font-weight:700;color:#222;margin-bottom:6px}
+  .fullpage-header p{font-size:13px;color:#888;line-height:1.5}
+  .fullpage-body{padding:20px}
+  .fullpage-body .form-group{margin-bottom:20px}
+  .fullpage-body .form-group label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:6px}
+  .fullpage-body .form-group input{width:100%;padding:12px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none}
+  .fullpage-body .form-group input:focus{border-color:#00b7b2}
+  .fullpage-body .checkbox-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:16px;font-size:12px;color:#666;line-height:1.5}
+  .fullpage-body .checkbox-row input[type="checkbox"]{margin-top:3px;flex-shrink:0}
+  .fullpage-body .checkbox-row a{color:#0066cc;text-decoration:underline}
+  .btn-primary{width:100%;padding:14px;border:none;border-radius:8px;background:#00b7b2;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+  .btn-primary:hover{background:#009e99}
+  .btn-primary.orange{background:#e67e00}
+  .btn-primary.orange:hover{background:#cc6e00}
+  .btn-secondary{width:100%;padding:14px;border:2px solid #ddd;border-radius:8px;background:#fff;color:#333;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px}
+  .btn-secondary:hover{border-color:#00b7b2;color:#00b7b2}
+  .fullpage-footer{padding:16px 20px;background:#fafafa;border-top:1px solid #f0f0f0;text-align:center;font-size:11px;color:#aaa}
+  .fullpage-footer a{color:#888;text-decoration:underline}
+
+  /* ── OTP Input ── */
+  .otp-inputs{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
+  .otp-inputs input{width:44px;height:52px;border:1.5px solid #ddd;border-radius:8px;text-align:center;font-size:20px;font-weight:700;outline:none}
+  .otp-inputs input:focus{border-color:#00b7b2}
+  .otp-timer{text-align:center;font-size:13px;color:#888;margin-bottom:16px}
+  .otp-links{text-align:center;font-size:12px;color:#0066cc;margin-top:12px;display:flex;justify-content:center;gap:16px}
+  .otp-links a{color:#0066cc;text-decoration:underline;cursor:pointer}
+
+  /* ── eKYC Steps ── */
+  .ekyc-steps{display:flex;justify-content:center;gap:0;margin-bottom:28px;position:relative}
+  .ekyc-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;position:relative;z-index:1}
+  .ekyc-step .step-circle{width:36px;height:36px;border-radius:50%;background:#e0e0e0;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+  .ekyc-step.active .step-circle{background:#00b7b2}
+  .ekyc-step.done .step-circle{background:#00b7b2}
+  .ekyc-step .step-text{font-size:11px;color:#888;text-align:center}
+  .ekyc-step.active .step-text{color:#00b7b2;font-weight:600}
+  .ekyc-steps::before{content:'';position:absolute;top:18px;left:15%;right:15%;height:2px;background:#e0e0e0;z-index:0}
+
+  /* ── eKYC Verify ── */
+  .verify-area{background:#f8f9fa;border:2px dashed #ddd;border-radius:12px;padding:40px 20px;text-align:center;margin-bottom:20px}
+  .verify-area .verify-icon{font-size:48px;margin-bottom:12px}
+  .verify-area h3{font-size:16px;font-weight:700;color:#333;margin-bottom:6px}
+  .verify-area p{font-size:13px;color:#888}
+  .verify-section{margin-bottom:20px}
+  .verify-section h4{font-size:14px;font-weight:700;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .verify-section h4 .num{width:24px;height:24px;border-radius:50%;background:#00b7b2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+
+  /* ── Error Screen ── */
+  .error-screen{text-align:center;padding:60px 20px}
+  .error-screen .error-icon{font-size:64px;margin-bottom:20px}
+  .error-screen h2{font-size:22px;font-weight:700;color:#333;margin-bottom:8px}
+  .error-screen p{font-size:14px;color:#888;margin-bottom:24px;max-width:360px;margin-left:auto;margin-right:auto;line-height:1.6}
+  .error-screen .btn-primary{max-width:300px;margin:0 auto}
+
+  /* ── Consent Modal (v3) ── */
+  .consent-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;animation:fadeIn .2s}
+  .consent-overlay.open{display:block}
+  .consent-modal{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;max-height:85vh;background:#fff;border-radius:20px 20px 0 0;z-index:2001;overflow-y:auto;animation:slideUp .25s ease}
+  @keyframes slideUp{from{transform:translateX(-50%) translateY(100%)}to{transform:translateX(-50%) translateY(0)}}
+  .consent-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 8px}
+  .consent-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:#999;cursor:pointer}
+  .consent-body{padding:0 24px 32px}
+  .consent-body h3{font-size:18px;font-weight:700;color:#222;margin-bottom:8px}
+  .consent-body .consent-desc{font-size:13px;color:#555;line-height:1.6;margin-bottom:20px}
+  .consent-features{list-style:none;padding:0;margin:0 0 20px}
+  .consent-features li{font-size:13px;color:#444;line-height:1.6;padding:8px 0;border-bottom:1px solid #f0f0f0;padding-left:28px;position:relative}
+  .consent-features li::before{content:'\2713';position:absolute;left:0;color:#00b7b2;font-weight:700;font-size:14px}
+  .consent-features li:last-child{border-bottom:none}
+  .consent-disclaimer{padding:14px;background:#f8f9fa;border-radius:10px;font-size:11px;color:#888;line-height:1.6;margin-bottom:20px}
+  .consent-disclaimer strong{color:#555}
+  .consent-checkbox{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;font-size:12px;color:#555;line-height:1.5}
+  .consent-checkbox input{margin-top:3px;flex-shrink:0;width:18px;height:18px;accent-color:#00b7b2}
+  .consent-btn{width:100%;padding:16px;border-radius:12px;border:none;background:#00b7b2;color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s}
+  .consent-btn:hover{background:#009e99}
+  .consent-btn:disabled{background:#ccc;cursor:not-allowed}
+  .consent-btn-skip{width:100%;padding:12px;border:none;background:transparent;color:#888;font-size:13px;cursor:pointer;margin-top:8px}
+
+  /* ── Info Drawer (v3) ── */
+  .drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;animation:fadeIn .2s}
+  .drawer-overlay.open{display:block}
+  .drawer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;max-height:80vh;background:#fff;border-radius:20px 20px 0 0;z-index:2001;overflow-y:auto;animation:slideUp .25s ease}
+  .drawer-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 8px}
+  .drawer-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:#999;cursor:pointer}
+  .drawer-body{padding:0 24px 32px}
+  .drawer-body h3{font-size:18px;font-weight:700;color:#222;margin-bottom:16px}
+  .drawer-body .odds-explain{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f0f0f0}
+  .drawer-body .odds-explain:last-of-type{border-bottom:none}
+  .drawer-body .odds-explain .oe-badge{flex-shrink:0;width:70px}
+  .drawer-body .odds-explain .oe-text{font-size:13px;color:#555;line-height:1.5}
+  .drawer-body .odds-explain .oe-text strong{color:#222}
+  .drawer-disclaimer{margin-top:16px;padding:14px;background:#f8f9fa;border-radius:10px;font-size:11px;color:#888;line-height:1.6}
+  .drawer-disclaimer strong{color:#555}
+
+  /* ── Floating Tooltip ── */
+  .floating-tooltip{display:none;position:fixed;background:#333;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:400;width:260px;line-height:1.5;white-space:normal;z-index:9000;box-shadow:0 4px 12px rgba(0,0,0,.2);pointer-events:none}
+  .floating-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#333}
+
+  /* ── Footer ── */
+  .footer{text-align:center;padding:32px 16px;font-size:11px;color:#aaa}
+
+  /* ── Unlock Animation ── */
+  @keyframes unlockReveal{0%{opacity:0;transform:scale(.85)}100%{opacity:1;transform:scale(1)}}
+  .odds-revealed{animation:unlockReveal .3s ease}
+
+  /* Mobile-first — all styles above are already mobile-optimised */
+</style>
+</head>
+<body>
+
+<!-- Password Gate -->
+<div id="password-gate">
+  <div class="gate-box">
+    <h2>PL Result Page Prototype</h2>
+    <p>v3 — Locked Odds + Customer Journey | Internal Review Only</p>
+    <input type="password" id="gate-input" placeholder="Enter password" autofocus>
+    <div class="gate-error" id="gate-error"></div>
+    <button onclick="checkPassword()">Enter</button>
+  </div>
+</div>
+
+<div id="app-content">
+
+<!-- Proto Controls -->
+<div class="proto-bar">
+  <div class="proto-row">
+    <span class="plabel">Scenario:</span>
+    <select id="scenario-picker" onchange="loadScenario(this.value)">
+      <optgroup label="Up-to-date (S1)">
+        <option value="S1">S1 — MH &#9989; CHC &#9989; Onboarded &#9989; Consented &#9989; Fresh &#9989;</option>
+      </optgroup>
+      <optgroup label="Needs consent (S3)">
+        <option value="S3">S3 — MH &#9989; CHC &#9989; Onboarded &#9989; Consented &#10060; Fresh &#9989;</option>
+      </optgroup>
+      <optgroup label="Logged in — needs 2FA (S9, S11)">
+        <option value="S9">S9/S10 — MH &#9989; Onboarded &#9989; Consented &#9989; (needs 2FA)</option>
+        <option value="S11">S11/S12 — MH &#9989; Onboarded &#9989; Consented &#10060; (needs 2FA + consent)</option>
+      </optgroup>
+      <optgroup label="Logged in — needs onboarding (S8, S16)">
+        <option value="S8">S8 — MH &#9989; CHC &#9989; Onboarded &#10060; (complete onboarding)</option>
+        <option value="S16">S16 — MH &#9989; No CHC (sign up + onboard)</option>
+      </optgroup>
+      <optgroup label="Guest (S25, S27, S32)">
+        <option value="S25">S25/S26 — Guest, Onboarded &#9989; Consented &#9989;</option>
+        <option value="S27">S27/S28 — Guest, Onboarded &#9989; Consented &#10060;</option>
+        <option value="S32">S32 — Guest, No CHC</option>
+      </optgroup>
+      <optgroup label="CHC Onboarding Paths">
+        <option value="happy">Happy path — full CHC eKYC onboarding</option>
+        <option value="unhappy">Unhappy path — eKYC verification failure</option>
+      </optgroup>
+    </select>
+    <button id="dev-notes-toggle" onclick="toggleDevNotes()">Dev Notes: OFF</button>
+    <span class="proto-badge">PL RP v3</span>
+  </div>
+  <div class="proto-row">
+    <span class="plabel">Steps:</span>
+    <div class="step-pills" id="step-pills"></div>
+  </div>
+</div>
+
+<!-- Step Info -->
+<div class="step-info" id="step-info">
+  <div class="step-number" id="step-num">1</div>
+  <div>
+    <div class="step-title" id="step-title">Loading...</div>
+    <div class="step-desc" id="step-desc"></div>
+  </div>
+</div>
+
+<!-- ═══ ALL SCREENS ═══ -->
+<div class="screen-container" id="screen-container">
+
+  <!-- ═════════════════════════════════════════════════════ -->
+  <!-- ── PL PAGE: UNLOCKED (Credit Odds visible, consented) ── -->
+  <!-- ═════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-pl-unlocked">
+    <div class="site-header">
+      <div class="hamburger">&#9776;</div>
+      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
+      <div class="header-nav">
+        <a href="#">信用卡</a>
+        <a href="#" class="active-link">私人貸款</a>
+        <a href="#">保險</a>
+        <a href="#">按揭</a>
+        <a href="#">銀行戶口</a>
+      </div>
+      <div class="user-icon">&#128100;</div>
+    </div>
+    <div class="breadcrumb">
+      <a href="#">&#127968; 首頁</a><span>/</span><a href="#">私人貸款</a><span>/</span>【借貸2026】即睇特快批核私人貸款利息及...
+    </div>
+    <div class="page-heading">
+      <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
+      <div class="updated-date">更新日期: 2026年4月7日</div>
+      <div class="description">私人貸款（P Loan）及低息貸款比較：私人貸款邊間好？貸款優惠 / 利息 / 利率貸款比較 | 私人貸...<span class="show-more">顯示更多</span></div>
+    </div>
+    <div class="container">
+      <div class="why-mh">
+        <img src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:contain;background:#fff;border:1px solid #eee;padding:2px">
+        為什麼透過 MoneyHero 申請貸款？
+        <span class="arrow">&#9660;</span>
+      </div>
+      <div class="dev-note" data-note="pl-unlocked">End state for all happy-path scenarios. User has consented and sees personalised Credit Odds. Consent was either:<br>• Granted during CHC onboarding (new user path), or<br>• Granted via the consent modal on this page (returning user path)<br>Products sorted by approval likelihood when odds are visible.</div>
+      <div class="tabs">
+        <div class="tab active">全部貸款</div><div class="tab">&#128196; 稅季貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div>
+      </div>
+      <div class="quick-summary"><span>+</span>「快速摘要」</div>
+      <div class="calc-row">
+        <div class="calc-field"><label>貸款額 (HK$) <span class="info-sm">i</span></label><input type="text" value="200,000" readonly></div>
+        <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
+      </div>
+      <!-- Unlocked banner -->
+      <div class="unlock-banner unlocked">
+        <span class="banner-lock">&#9989;</span>
+        <div class="banner-text">
+          <strong>批核機會已解鎖</strong>
+          <span>你的個人化批核機會已在下方各產品中顯示。</span>
+        </div>
+      </div>
+      <div class="results-info">Approval odds last updated 7 Apr 2026</div>
+      <div class="results-info">顯示 <strong>8</strong> 個貸款產品，按批核機會排序</div>
+      <div class="product-table"><div class="product-table-inner">
+        <div class="table-header">
+          <div>銀行 / 財務公司</div>
+          <div class="col-odds-header">批核機會 <span class="tooltip-trigger" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()" onclick="openDrawer()">&#9432;</span></div>
+          <div>實際年利率</div>
+          <div>每月還款</div>
+          <div>總利息支出</div>
+          <div>MoneyHero 獨家</div>
+          <div></div>
+        </div>
+        <div id="pl-unlocked-products"></div>
+      </div></div>
+      <div class="cards-section"><div class="cards-section-title">產品詳情 <span class="count-badge" id="unlocked-card-count">8</span></div><div id="pl-unlocked-cards"></div></div>
+    </div>
+    <div class="footer"><p>Prototype — PL Result Page v3 | MoneyHero HK | 2026-04-07</p></div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <!-- ── PL PAGE: CONSENT (has fresh data but hasn't consented — lock icons, consent modal) ── -->
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-pl-consent">
+    <div class="site-header">
+      <div class="hamburger">&#9776;</div>
+      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
+      <div class="header-nav">
+        <a href="#">信用卡</a><a href="#" class="active-link">私人貸款</a><a href="#">保險</a><a href="#">按揭</a><a href="#">銀行戶口</a>
+      </div>
+      <div class="user-icon">&#128100;</div>
+    </div>
+    <div class="breadcrumb"><a href="#">&#127968; 首頁</a><span>/</span><a href="#">私人貸款</a><span>/</span>【借貸2026】即睇特快批核私人貸款利息及...</div>
+    <div class="page-heading">
+      <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
+      <div class="updated-date">更新日期: 2026年4月7日</div>
+      <div class="description">私人貸款（P Loan）及低息貸款比較...<span class="show-more">顯示更多</span></div>
+    </div>
+    <div class="container">
+      <div class="why-mh">
+        <img src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:contain;background:#fff;border:1px solid #eee;padding:2px">
+        為什麼透過 MoneyHero 申請貸款？
+        <span class="arrow">&#9660;</span>
+      </div>
+      <div class="dev-note" data-note="pl-consent">CONSENT state — user has fresh credit data but has NOT consented to approval odds display.<br>• Lock icons in Approval Odds column (no badges visible)<br>• Unlock banner CTA above table — opens consent modal<br>• Clicking any lock icon also opens the consent modal<br>• After consent granted, navigates to pl-unlocked<br>• Products shown in default sort order (no odds-based sorting)</div>
+      <div class="tabs">
+        <div class="tab active">全部貸款</div><div class="tab">&#128196; 稅季貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div>
+      </div>
+      <div class="quick-summary"><span>+</span>「快速摘要」</div>
+      <div class="calc-row">
+        <div class="calc-field"><label>貸款額 (HK$) <span class="info-sm">i</span></label><input type="text" value="200,000" readonly></div>
+        <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
+      </div>
+      <!-- Consent banner -->
+      <div class="unlock-banner" onclick="handleLockedBannerClick()">
+        <span class="banner-lock">&#128274;</span>
+        <div class="banner-text">
+          <strong>解鎖你的批核機會</strong>
+          <span>同意使用你的信貸資料以查看個人化批核機會</span>
+        </div>
+        <button class="banner-btn">解鎖</button>
+      </div>
+      <div class="results-info">顯示 <strong>8</strong> 個貸款產品</div>
+      <div class="product-table"><div class="product-table-inner">
+        <div class="table-header">
+          <div>銀行 / 財務公司</div>
+          <div class="col-odds-header">批核機會 <span class="tooltip-trigger" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()" onclick="openDrawer()">&#9432;</span></div>
+          <div>實際年利率</div>
+          <div>每月還款</div>
+          <div>總利息支出</div>
+          <div>MoneyHero 獨家</div>
+          <div></div>
+        </div>
+        <div id="pl-consent-products"></div>
+      </div></div>
+      <div class="cards-section"><div class="cards-section-title">產品詳情 <span class="count-badge">8</span></div><div id="pl-consent-cards"></div></div>
+    </div>
+    <div class="footer"><p>Prototype — PL Result Page v3 | MoneyHero HK | 2026-04-07</p></div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <!-- ── PL PAGE: LOCKED (no odds available — needs auth/onboard) ── -->
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-pl-locked">
+    <div class="site-header">
+      <div class="hamburger">&#9776;</div>
+      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
+      <div class="header-nav">
+        <a href="#">信用卡</a><a href="#" class="active-link">私人貸款</a><a href="#">保險</a><a href="#">按揭</a><a href="#">銀行戶口</a>
+      </div>
+      <div class="user-icon">&#128100;</div>
+    </div>
+    <div class="breadcrumb"><a href="#">&#127968; 首頁</a><span>/</span><a href="#">私人貸款</a><span>/</span>【借貸2026】即睇特快批核私人貸款利息及...</div>
+    <div class="page-heading">
+      <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
+      <div class="updated-date">更新日期: 2026年4月7日</div>
+      <div class="description">私人貸款（P Loan）及低息貸款比較...<span class="show-more">顯示更多</span></div>
+    </div>
+    <div class="container">
+      <div class="why-mh">
+        <img src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:contain;background:#fff;border:1px solid #eee;padding:2px">
+        為什麼透過 MoneyHero 申請貸款？
+        <span class="arrow">&#9660;</span>
+      </div>
+      <div class="dev-note" data-note="pl-locked">LOCKED state — for logged-in and guest scenarios where no odds are available (S8, S9, S11, S16, S25, S27, S32, unhappy).<br>• Dashes (–) in Approval Odds column — no lock icons, no badges<br>• Banner CTA above table — navigates to next step in scenario (login, 2FA, onboarding, etc.)<br>• Banner text is dynamic based on scenario<br>• Products shown in default sort order (no odds-based sorting)</div>
+      <div class="tabs">
+        <div class="tab active">全部貸款</div><div class="tab">&#128196; 稅季貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div>
+      </div>
+      <div class="quick-summary"><span>+</span>「快速摘要」</div>
+      <div class="calc-row">
+        <div class="calc-field"><label>貸款額 (HK$) <span class="info-sm">i</span></label><input type="text" value="200,000" readonly></div>
+        <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
+      </div>
+      <!-- Locked banner (dynamic text via JS) -->
+      <div class="unlock-banner" onclick="goNext()">
+        <span class="banner-lock">&#128274;</span>
+        <div class="banner-text">
+          <strong id="locked-banner-title">登入查看你的批核機會</strong>
+          <span id="locked-banner-subtitle">登入 Credit Hero Club 以查看你的個人化批核機會</span>
+        </div>
+        <button class="banner-btn">解鎖</button>
+      </div>
+      <div class="results-info">顯示 <strong>8</strong> 個貸款產品</div>
+      <div class="product-table"><div class="product-table-inner">
+        <div class="table-header">
+          <div>銀行 / 財務公司</div>
+          <div class="col-odds-header">批核機會 <span class="tooltip-trigger" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()" onclick="openDrawer()">&#9432;</span></div>
+          <div>實際年利率</div>
+          <div>每月還款</div>
+          <div>總利息支出</div>
+          <div>MoneyHero 獨家</div>
+          <div></div>
+        </div>
+        <div id="pl-locked-products"></div>
+      </div></div>
+      <div class="cards-section"><div class="cards-section-title">產品詳情 <span class="count-badge">8</span></div><div id="pl-locked-cards"></div></div>
+    </div>
+    <div class="footer"><p>Prototype — PL Result Page v3 | MoneyHero HK | 2026-04-07</p></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ── MH LOGIN / SIGN UP (Keycloak) ── -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="screen" id="screen-mh-login">
+    <div class="dev-note" data-note="mh-login" style="position:absolute;top:8px;left:8px;right:8px;z-index:10">Non-logged-in users land here via CTA.<br><strong>Actual URL:</strong> identity.moneyhero.com.hk/realms/moneyhero/protocol/openid-connect/auth?client_id=credithero&amp;redirect_uri=creditheroclub.moneyhero.com.hk/zh/auth<br>&#x2022; This is the CHC/MH unified login page (Keycloak)<br>&#x2022; After login/signup → redirects back to creditheroclub.moneyhero.com.hk/zh/auth<br>&#x2022; CHC routing then handles: refresh / onboarding / sign up based on user state</div>
+    <div style="min-height:100vh;background:#00162e;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;position:relative">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%, rgba(0,114,170,0.3) 0%, transparent 60%);pointer-events:none"></div>
+      <div style="position:relative;z-index:1;width:100%;max-width:400px;text-align:center">
+        <img src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero" style="height:32px;margin:0 auto 32px;filter:brightness(0) invert(1)">
+        <h2 style="color:#fff;font-size:22px;font-weight:700;margin-bottom:32px">立即登入或註冊</h2>
+        <button onclick="goNext()" style="width:100%;padding:14px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#333;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:24px">
+          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          使用Google帳戶繼續
+        </button>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.2)"></div>
+          <span style="color:rgba(255,255,255,0.5);font-size:13px">或</span>
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.2)"></div>
+        </div>
+        <div style="margin-bottom:20px">
+          <input type="email" placeholder="輸入電郵地址" value="user@example.com" style="width:100%;padding:14px 16px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.1);color:#fff;font-size:15px;outline:none;box-sizing:border-box" onfocus="this.style.borderColor='#00b7b2'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
+        </div>
+        <button onclick="goNext()" style="width:100%;padding:14px;border:none;border-radius:8px;background:#00b7b2;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:24px">登入/註冊</button>
+        <div style="display:flex;gap:8px;align-items:flex-start;text-align:left;margin-bottom:24px">
+          <input type="checkbox" checked style="margin-top:3px;flex-shrink:0">
+          <span style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">我希望透過電郵或其他電子途徑收取有關MoneyHero產品和服務的推廣資訊。我確認我已閱讀及同意MoneyHero的 <a href="#" style="color:#00b7b2;text-decoration:underline">私隱政策</a></span>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.6">
+          繼續即表示你同意我們的 <a href="#" style="color:rgba(255,255,255,0.6);text-decoration:underline">使用條款</a> 及 <a href="#" style="color:rgba(255,255,255,0.6);text-decoration:underline">私隱政策</a>
+        </div>
+      </div>
+      <div style="position:relative;z-index:1;margin-top:40px;font-size:11px;color:rgba(255,255,255,0.3)">&copy; 2026 MoneyHero Group</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ -->
+  <!-- ── MH OTP VERIFICATION ── -->
+  <!-- ═══════════════════════ -->
+  <div class="screen" id="screen-mh-otp">
+    <div style="min-height:100vh;background:#00162e;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;position:relative">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%, rgba(0,114,170,0.3) 0%, transparent 60%);pointer-events:none"></div>
+      <div style="position:relative;z-index:1;width:100%;max-width:400px">
+        <div style="text-align:center;margin-bottom:28px">
+          <img src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero" style="height:32px;margin:0 auto 24px;filter:brightness(0) invert(1)">
+        </div>
+        <div style="background:#fff;border-radius:16px;padding:32px 28px;box-shadow:0 4px 24px rgba(0,0,0,0.3);text-align:center">
+          <h2 style="font-size:20px;font-weight:700;color:#222;margin-bottom:8px">輸入驗證碼</h2>
+          <p style="font-size:13px;color:#888;line-height:1.5;margin-bottom:24px">我們已發送 6 位數驗證碼至<br><strong>user@example.com</strong></p>
+          <div class="otp-inputs">
+            <input type="text" maxlength="1" value="5" readonly>
+            <input type="text" maxlength="1" value="2" readonly>
+            <input type="text" maxlength="1" value="8" readonly>
+            <input type="text" maxlength="1" value="4" readonly>
+            <input type="text" maxlength="1" value="1" readonly>
+            <input type="text" maxlength="1" value="7" readonly>
+          </div>
+          <div class="otp-timer">驗證碼有效時間：<strong>04:32</strong></div>
+          <button onclick="goNext()" style="width:100%;padding:14px;border:none;border-radius:8px;background:#00b7b2;color:#fff;font-size:15px;font-weight:700;cursor:pointer">驗證</button>
+          <div class="otp-links" style="margin-top:16px">
+            <a>重新發送驗證碼</a>
+            <a>重新輸入電郵</a>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:20px;font-size:11px;color:rgba(255,255,255,0.3)">
+          MoneyHero Group &copy; 2026 &middot; <a href="#" style="color:rgba(255,255,255,0.5);text-decoration:underline">私隱政策</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- ── eKYC LANDING — CHC Onboarding entry point ── -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-ekyc-consent">
+    <div class="site-header">
+      <div class="hamburger">&#9776;</div>
+      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
+      <div class="header-nav"></div>
+      <div class="user-icon">&#128100;</div>
+    </div>
+    <div class="fullpage-screen">
+      <div class="fullpage-card">
+        <div class="fullpage-header">
+          <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#00b7b2,#0072aa);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff">&#9733;</div>
+          <h2>加入 Credit Hero Club</h2>
+          <p>免費查閱您的信貸報告及個人化批核機會 (Credit Odds)</p>
+          <div class="ekyc-steps" style="margin-top:20px">
+            <div class="ekyc-step active"><div class="step-circle">1</div><div class="step-text">授權同意</div></div>
+            <div class="ekyc-step"><div class="step-circle">2</div><div class="step-text">身份驗證</div></div>
+            <div class="ekyc-step"><div class="step-circle">3</div><div class="step-text">短訊驗證</div></div>
+          </div>
+        </div>
+        <div class="fullpage-body">
+          <div class="checkbox-row"><input type="checkbox" checked><span>我同意透過 eKYC (電子身份驗證) 核實我的身份</span></div>
+          <div class="checkbox-row"><input type="checkbox" checked><span>我授權 MoneyHero 向環聯 (TransUnion) 查閱我的 <a href="#">信貸資料</a></span></div>
+          <div class="checkbox-row"><input type="checkbox" checked><span>我已閱讀並同意 Credit Hero Club 的 <a href="#">使用條款</a> 及 <a href="#">私隱政策</a></span></div>
+          <div class="checkbox-row"><input type="checkbox" checked><span>我同意將我的信貸資料用於在 MoneyHero 上顯示個人化批核機會指標（<a href="#">資料使用聲明</a>）</span></div>
+          <button class="btn-primary orange" onclick="goNext()" style="margin-top:8px">免費加入 Credit Hero Club</button>
+          <button class="btn-secondary" onclick="goPrev()">暫時不了，謝謝</button>
+          <div class="dev-note" data-note="ekyc-consent">eKYC landing page — entry point for CHC onboarding. Combines CHC invite + consent + eKYC introduction + approval odds opt-in.<br><strong>v3 addition:</strong> The 4th checkbox specifically covers consent to use credit data for approval odds on MH. This is the separate, explicit opt-in required by CCD Code 2.12.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════ -->
+  <!-- ── eKYC VERIFY — CHC Onboarding (No Change) ── -->
+  <!-- ════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-ekyc-verify">
+    <div class="site-header">
+      <div class="hamburger">&#9776;</div>
+      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
+      <div class="header-nav"></div>
+      <div class="user-icon">&#128100;</div>
+    </div>
+    <div class="fullpage-screen">
+      <div class="fullpage-card">
+        <div class="fullpage-header">
+          <h2>身份驗證</h2>
+          <p>請完成 HKID 拍攝及自拍驗證</p>
+          <div class="ekyc-steps" style="margin-top:20px">
+            <div class="ekyc-step done"><div class="step-circle">&#10003;</div><div class="step-text">授權同意</div></div>
+            <div class="ekyc-step active"><div class="step-circle">2</div><div class="step-text">身份驗證</div></div>
+            <div class="ekyc-step"><div class="step-circle">3</div><div class="step-text">短訊驗證</div></div>
+          </div>
+        </div>
+        <div class="fullpage-body">
+          <div class="verify-section">
+            <h4><span class="num">1</span> HKID 身份證 OCR 掃描</h4>
+            <div class="verify-area">
+              <div class="verify-icon">&#128179;</div>
+              <h3>拍攝您的香港身份證</h3>
+              <p>請將身份證放在平坦表面上，確保所有文字清晰可見</p>
+            </div>
+          </div>
+          <div class="verify-section">
+            <h4><span class="num">2</span> 自拍驗證 (Selfie)</h4>
+            <div class="verify-area">
+              <div class="verify-icon">&#129333;</div>
+              <h3>拍攝自拍照</h3>
+              <p>確保面部清晰、光線充足，移除帽子及太陽眼鏡</p>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="goNext()">開始驗證</button>
+          <div class="dev-note" data-note="ekyc-verify">eKYC identity verification — No Change from existing CHC onboarding.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════ -->
+  <!-- ── TU SMS — TransUnion verification (No Change) ── -->
+  <!-- ═════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-tu-sms">
+    <div class="site-header">
+      <div class="hamburger">&#9776;</div>
+      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
+      <div class="header-nav"></div>
+      <div class="user-icon">&#128100;</div>
+    </div>
+    <div class="fullpage-screen">
+      <div class="fullpage-card">
+        <div class="fullpage-header">
+          <h2>環聯短訊驗證</h2>
+          <p>TransUnion 已發送驗證碼至您的手提電話<br><strong>+852 **** 3456</strong></p>
+          <div class="ekyc-steps" style="margin-top:20px">
+            <div class="ekyc-step done"><div class="step-circle">&#10003;</div><div class="step-text">授權同意</div></div>
+            <div class="ekyc-step done"><div class="step-circle">&#10003;</div><div class="step-text">身份驗證</div></div>
+            <div class="ekyc-step active"><div class="step-circle">3</div><div class="step-text">短訊驗證</div></div>
+          </div>
+        </div>
+        <div class="fullpage-body">
+          <div class="otp-inputs">
+            <input type="text" maxlength="1" value="9" readonly>
+            <input type="text" maxlength="1" value="3" readonly>
+            <input type="text" maxlength="1" value="7" readonly>
+            <input type="text" maxlength="1" value="6" readonly>
+            <input type="text" maxlength="1" value="2" readonly>
+            <input type="text" maxlength="1" value="1" readonly>
+          </div>
+          <div class="otp-timer">驗證碼有效時間：<strong>02:48</strong></div>
+          <button class="btn-primary" onclick="goNext()">驗證並查閱信貸報告</button>
+          <div class="otp-links"><a>重新發送驗證碼</a></div>
+        </div>
+        <div class="fullpage-footer">Powered by TransUnion &middot; 環聯資訊有限公司</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- ── ERROR — CHC Onboarding unhappy flow (No Change) ── -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-error">
+    <div class="site-header">
+      <div class="hamburger">&#9776;</div>
+      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
+      <div class="header-nav">
+        <a href="#">信用卡</a><a href="#" class="active-link">私人貸款</a><a href="#">保險</a><a href="#">按揭</a><a href="#">銀行戶口</a>
+      </div>
+      <div class="user-icon">&#128100;</div>
+    </div>
+    <div class="fullpage-screen">
+      <div class="fullpage-card">
+        <div class="error-screen">
+          <div class="error-icon">&#9888;&#65039;</div>
+          <h2>發生錯誤</h2>
+          <p>很抱歉，身份驗證未能完成。您的個案將交由人手審核處理，我們會於 2-3 個工作天內透過電郵通知您結果。</p>
+          <div class="dev-note" data-note="error">eKYC verification failed — case escalated to manual review.</div>
+          <button class="btn-primary" onclick="goNext()">返回 MoneyHero</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /screen-container -->
+
+<!-- Floating Tooltip -->
+<div class="floating-tooltip" id="floating-tooltip">批核機會根據與您相似信貸狀況的用戶數據估算，僅供參考，不保證獲批或被拒。</div>
+
+<!-- Navigation -->
+<div class="nav-bar" id="nav-bar">
+  <button class="nav-btn" id="btn-prev" onclick="goPrev()">&#8592; Previous</button>
+  <span id="nav-counter" style="font-size:12px;color:#888"></span>
+  <button class="nav-btn primary" id="btn-next" onclick="goNext()">Next &#8594;</button>
+</div>
+
+<!-- ══ CONSENT MODAL (v3 — for on-page consent) ══ -->
+<div class="consent-overlay" id="consent-overlay" onclick="closeConsent()"></div>
+<div class="consent-modal" id="consent-modal" style="display:none">
+  <div class="consent-handle"></div>
+  <button class="consent-close" onclick="closeConsent()">&#10005;</button>
+  <div class="consent-body">
+    <h3>&#128274; 查看你的批核機會</h3>
+    <p class="consent-desc">我們可根據你的 TransUnion 信貸資料，顯示你獲批各產品的機率。</p>
+    <ul class="consent-features">
+      <li>查看每個產品的<strong>高 / 中 / 低</strong>批核機會</li>
+      <li>所有產品仍會顯示 — 不會隱藏或篩選任何產品</li>
+      <li>批核機會<strong>僅供參考</strong>，並不保證批核結果</li>
+      <li>你的信貸資料不會與貸款機構或第三方共享</li>
+    </ul>
+    <div class="consent-disclaimer">
+      <strong>運作方式：</strong>你現有的 TransUnion 信貸檔案（已為你的信貸報告而取得）將與產品一般要求進行比對，以產生批核機會指標。不會額外存取信貸資料。
+    </div>
+    <div class="consent-checkbox">
+      <input type="checkbox" id="consent-check" onchange="updateConsentBtn()">
+      <label for="consent-check">我了解批核機會僅供參考，並同意使用我的信貸資料在此頁面顯示批核機會指標。</label>
+    </div>
+    <button class="consent-btn" id="consent-btn" disabled onclick="grantConsent()">顯示我的批核機會</button>
+    <button class="consent-btn-skip" onclick="closeConsent()">暫時不需要</button>
+  </div>
+</div>
+
+<!-- ══ INFO DRAWER ══ -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer" style="display:none">
+  <div class="drawer-handle"></div>
+  <button class="drawer-close" onclick="closeDrawer()">&#10005;</button>
+  <div class="drawer-body">
+    <h3>甚麼是批核機會？</h3>
+    <p style="font-size:13px;color:#555;line-height:1.6;margin-bottom:16px">批核機會根據你的 TransUnion 信貸檔案與歷史申請數據比對，顯示你獲批某產品的大概機率。</p>
+    <div class="odds-explain">
+      <div class="oe-badge"><span class="odds-badge high">高 High</span></div>
+      <div class="oe-text"><strong>機會較高。</strong>你的信貸檔案符合該產品大部分或全部一般要求。</div>
+    </div>
+    <div class="odds-explain">
+      <div class="oe-badge"><span class="odds-badge medium">中 Med</span></div>
+      <div class="oe-text"><strong>機會中等。</strong>你的信貸檔案符合部分但非全部一般要求。</div>
+    </div>
+    <div class="odds-explain">
+      <div class="oe-badge"><span class="odds-badge low">低 Low</span></div>
+      <div class="oe-text"><strong>機會較低。</strong>你的信貸檔案可能未符合該產品的一般要求。</div>
+    </div>
+    <div class="drawer-disclaimer">
+      <strong>重要事項：</strong>批核機會僅供參考，並不保證批核或拒絕。最終決定權在貸款機構。申請批核機會較高的產品有助減少不必要的「硬性查詢」，這些查詢可能會暫時降低你的信貸評分。
+    </div>
+  </div>
+</div>
+
+</div><!-- /app-content -->
+
+<script>
+// ── Auth ──
+function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0}return(h>>>0).toString(16).padStart(8,'0')}
+const EXPECTED=simpleHash('chc-moneyhero');
+function checkPassword(){
+  const input=document.getElementById('gate-input'),err=document.getElementById('gate-error');
+  if(simpleHash(input.value)===EXPECTED){
+    document.getElementById('password-gate').classList.add('hidden');
+    document.getElementById('app-content').classList.add('visible');
+    sessionStorage.setItem('proto-auth-v3','1');
+    loadScenario('S1');
+  } else {
+    input.classList.add('error');err.textContent='Incorrect password';
+    setTimeout(()=>{input.classList.remove('error');err.textContent=''},1500);
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  if(sessionStorage.getItem('proto-auth-v3')==='1'){
+    document.getElementById('password-gate').classList.add('hidden');
+    document.getElementById('app-content').classList.add('visible');
+    loadScenario('S1');
+  }
+  document.getElementById('gate-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword()});
+  renderAllProducts();
+});
+
+// ── Product Data (CDN logos from real MH site) ──
+const CDN='https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/';
+const products=[
+  {name:'Citi 特快現金私人貸款',logo:CDN+'xsmall_bltd5bc304e27d1f2ec_2daddc24b3.webp',monthly:'HK$8,459',interest:'HK$3,024',apr:'1.40%',reward:'HK$6,088',fee:'0%',tag:'全城最高優惠',tagClass:'exclusive',odds:'high'},
+  {name:'WeLend 私人貸款',logo:CDN+'xsmall_blta2b1c7656f55bafa_2cd3613af9.webp',monthly:'HK$8,495',interest:'HK$3,888',apr:'1.00%',reward:'HK$3,600',fee:'0%',tag:'全城最高優惠',tagClass:'exclusive',odds:'high'},
+  {name:'渣打銀行 私人貸款',logo:CDN+'xsmall_blt79d486a21f7098a1_824ca9b71f.webp',monthly:'HK$8,499',interest:'HK$3,984',apr:'1.85%',reward:'HK$3,000',fee:'0%',tag:'0%手續費',tagClass:'',odds:'medium'},
+  {name:'安信 定額私人貸款',logo:CDN+'xsmall_blt4351440a848723f8_4955301d54.webp',monthly:'HK$8,433',interest:'HK$2,400',apr:'1.18%',reward:'HK$18,000',fee:'0%',tag:'急救之選',tagClass:'fast',odds:'high'},
+  {name:'邦民 特快低息貸款',logo:CDN+'xlarge_blt85d396e2e90b641d_88c6c1e85e.webp',monthly:'HK$8,433',interest:'HK$2,400',apr:'1.12%',reward:'HK$4,000',fee:'0%',tag:'特快批核',tagClass:'fast',odds:'high'},
+  {name:'OCBC 華僑銀行「零息稅貸」',logo:CDN+'large_blt23057d4748878759_590c2706f9.webp',monthly:'HK$8,573',interest:'HK$0',apr:'1.38%',reward:'HK$5,888',fee:'0%',tag:'稅季貸款',tagClass:'tax',odds:'low'},
+  {name:'信銀國際 $mart Plus 分期貸款',logo:CDN+'large_CNCBI_b1b80c54d9.jpeg',monthly:'HK$8,373',interest:'HK$960',apr:'1.38%',reward:'HK$2,388',fee:'0%',tag:'稅季貸款',tagClass:'tax',odds:'low'},
+  {name:'CreFIT 現金貸',logo:CDN+'xlarge_blt9b38cc40f974e6de_213f8726eb.webp',monthly:'HK$8,453',interest:'HK$2,875',apr:'1.38%',reward:'HK$23,200',fee:'0%',tag:'特快批核',tagClass:'fast',odds:'high'},
+];
+
+// ── Table Row Renderer (3 modes: unlocked, consent, locked) ──
+function renderProductRow(p, mode){
+  const labels={high:'高',medium:'中',low:'低'};
+  var oddsHTML='';
+  if(mode==='unlocked'){
+    oddsHTML='<span class="odds-badge odds-revealed '+p.odds+'">'+labels[p.odds]+'</span>';
+  } else if(mode==='consent'){
+    oddsHTML='<span class="tbl-odds-lock" onclick="handleLockClick()">&#128274; 解鎖</span>';
+  } else {
+    oddsHTML='<span style="color:#999;font-size:14px">\u2013</span>';
+  }
+  return '<div class="product-row">'+
+    '<div class="provider">'+
+      '<div class="provider-logo"><img src="'+p.logo+'" alt="" loading="lazy"></div>'+
+      '<div>'+
+        '<div class="provider-name">'+p.name+'</div>'+
+        (p.tag?'<span class="provider-tag '+p.tagClass+'">'+p.tag+'</span>':'')+
+        '<div class="provider-reward">&#127873; 高達 '+p.reward+' 獎賞</div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="odds-cell">'+oddsHTML+'</div>'+
+    '<div class="cell"><div class="value">'+p.apr+'</div><div class="label">實際年利率</div></div>'+
+    '<div class="cell"><div class="value">'+p.monthly+'</div><div class="label">每月還款</div></div>'+
+    '<div class="cell"><div class="value">'+p.interest+'</div><div class="label">總利息</div></div>'+
+    '<div class="cell" style="text-align:center"><div class="value" style="color:#e67e00;font-size:14px">'+p.reward+'</div><div class="label">MoneyHero 獨家</div></div>'+
+    '<div style="text-align:right"><button class="btn-apply">立即申請</button></div>'+
+  '</div>';
+}
+
+// ── Product Card Renderer (3 modes: unlocked, consent, locked) ──
+function renderProductCard(p, mode){
+  const labels={high:'高',medium:'中',low:'低'};
+  var oddsHTML='';
+  if(mode==='unlocked'){
+    oddsHTML='<div class="card-odds-banner">'+
+      '<span class="cob-label">批核機會 <span class="info-icon tooltip-trigger" onclick="openDrawer()">&#9432;</span></span>'+
+      '<span class="cob-badge"><span class="odds-badge odds-revealed '+p.odds+'">'+labels[p.odds]+'</span></span>'+
+      '<span class="cob-meta">更新：2026年4月7日</span>'+
+    '</div>';
+  } else if(mode==='consent'){
+    oddsHTML='<div class="card-odds-locked" onclick="handleLockClick()">'+
+      '<span class="lock-icon">&#128274;</span>'+
+      '<span class="lock-text"><strong>批核機會</strong><span>點擊查看你獲批此產品的機率</span></span>'+
+      '<span class="lock-cta">解鎖 &#8250;</span>'+
+    '</div>';
+  } else {
+    oddsHTML='<div class="card-odds-banner" style="background:#f8f9fa">'+
+      '<span class="cob-label">批核機會</span>'+
+      '<span style="color:#999;font-size:14px;margin-left:8px">\u2013</span>'+
+    '</div>';
+  }
+  return '<div class="product-card">'+
+    '<div class="card-header">'+
+      '<div class="card-logo"><img src="'+p.logo+'" alt="" loading="lazy"></div>'+
+      '<div class="card-header-info">'+
+        '<div class="card-product-name">'+p.name+'</div>'+
+        '<div class="card-tags">'+(p.tag?'<span class="card-tag '+p.tagClass+'">'+p.tag+'</span>':'')+'</div>'+
+        '<div class="card-reward-line">&#127873; MoneyHero 獎賞高達 '+p.reward+'</div>'+
+      '</div>'+
+      '<div class="card-header-apply"><button class="btn-apply">立即申請</button></div>'+
+    '</div>'+
+    '<div class="card-stats">'+
+      '<div class="card-stat"><div class="stat-label">每月還款額低至</div><div class="stat-value">'+p.monthly+'</div></div>'+
+      '<div class="card-stat"><div class="stat-label">總利息低至</div><div class="stat-value">'+p.interest+'</div></div>'+
+      '<div class="card-stat"><div class="stat-label">最低實際年利率</div><div class="stat-value">'+p.apr+'</div></div>'+
+      '<div class="card-stat"><div class="stat-label">手續費低至</div><div class="stat-value">'+p.fee+'</div></div>'+
+    '</div>'+
+    oddsHTML+
+    '<div class="card-accordions">'+
+      '<div class="card-accordion">'+
+        '<div class="card-accordion-header" onclick="toggleCardAccordion(this)">&#127873; MoneyHero獎賞價值 <span class="acc-arrow">&#9660;</span></div>'+
+        '<div class="card-accordion-body"><div class="card-accordion-content">'+
+          '<div class="card-reward-detail"><span class="reward-icon">&#127873;</span><span class="reward-text">高達 '+p.reward+' 獎賞</span></div>'+
+          '<p style="font-size:12px;color:#666">透過 MoneyHero 成功申請可獲獎賞。受條款及細則約束。</p>'+
+        '</div></div>'+
+      '</div>'+
+      '<div class="card-accordion">'+
+        '<div class="card-accordion-header" onclick="toggleCardAccordion(this)">申請步驟 <span class="acc-arrow">&#9660;</span></div>'+
+        '<div class="card-accordion-body"><div class="card-accordion-content">'+
+          '<ol class="card-steps"><li>點擊「立即申請」前往銀行網站</li><li>填寫申請表格及上傳所需文件</li><li>銀行審批及通知結果</li></ol>'+
+        '</div></div>'+
+      '</div>'+
+      '<div class="card-accordion">'+
+        '<div class="card-accordion-header" onclick="toggleCardAccordion(this)">產品資訊 <span class="acc-arrow">&#9660;</span></div>'+
+        '<div class="card-accordion-body"><div class="card-accordion-content">'+
+          '<p style="font-size:13px;color:#555;line-height:1.7">年齡要求：18歲或以上<br>最低年薪要求：HK$60,000<br>申請人須為香港居民</p>'+
+        '</div></div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function toggleCardAccordion(header){
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+// ── Render All Products (tables + cards for all 3 states) ──
+function renderAllProducts(){
+  ['unlocked','consent','locked'].forEach(function(mode){
+    var tableEl=document.getElementById('pl-'+mode+'-products');
+    var cardsEl=document.getElementById('pl-'+mode+'-cards');
+    if(tableEl) tableEl.innerHTML=products.map(function(p){return renderProductRow(p,mode)}).join('');
+    if(cardsEl) cardsEl.innerHTML=products.map(function(p){return renderProductCard(p,mode)}).join('');
+  });
+}
+
+// ══════════════════════════════════════
+// ── SCENARIO DEFINITIONS ──
+// ══════════════════════════════════════
+const stepMeta={
+  'pl-unlocked':  {title:'PL Page (Up-to-date)', desc:'User has consented — sees personalised Credit Odds'},
+  'pl-consent':   {title:'PL Page (Needs Consent)', desc:'User has fresh data but hasn\'t consented — lock icons, consent modal available'},
+  'pl-locked':    {title:'PL Page (No Odds)', desc:'User needs to authenticate or onboard before odds are available'},
+  'mh-login':     {title:'MH Login / Sign Up', desc:'CHC/MH unified login page (Keycloak)'},
+  'mh-otp':       {title:'MH Email OTP', desc:'Enter 6-digit verification code sent to email'},
+  'ekyc-consent': {title:'eKYC Landing (CHC Onboarding)', desc:'CHC onboarding entry — consent + eKYC + approval odds opt-in'},
+  'ekyc-verify':  {title:'eKYC Identity Verification', desc:'HKID OCR scan + selfie verification'},
+  'tu-sms':       {title:'TU SMS / 2FA', desc:'TransUnion sends SMS OTP to verify identity'},
+  'error':        {title:'Error — eKYC Failed', desc:'eKYC verification failed, case escalated to manual review'},
+};
+
+const scenarios={
+  'S1':{
+    name:'S1 — Up-to-date',
+    desc:'Best case: MH + CHC logged in, onboarded, consented, fresh data. Sees odds immediately.',
+    steps:['pl-unlocked']
+  },
+  'S3':{
+    name:'S3 — Needs consent',
+    desc:'MH + CHC logged in, onboarded, fresh data, but has NOT consented to approval odds. Sees consent modal on page.',
+    steps:['pl-consent','pl-unlocked']
+  },
+  'S8':{
+    name:'S8 — CHC logged in, not onboarded',
+    desc:'MH + CHC logged in but CHC onboarding not completed. Needs to complete eKYC (consent included).',
+    steps:['pl-locked','ekyc-consent','ekyc-verify','tu-sms','pl-unlocked']
+  },
+  'S9':{
+    name:'S9/S10 — MH logged in, onboarded, consented, needs 2FA',
+    desc:'MH logged in, CHC onboarded + consented but CHC session expired. Needs 2FA to refresh.',
+    steps:['pl-locked','tu-sms','pl-unlocked']
+  },
+  'S11':{
+    name:'S11/S12 — MH logged in, onboarded, NOT consented, needs 2FA',
+    desc:'MH logged in, CHC onboarded but not consented. Needs 2FA then consent modal.',
+    steps:['pl-locked','tu-sms','pl-consent','pl-unlocked']
+  },
+  'S16':{
+    name:'S16 — MH logged in, no CHC',
+    desc:'MH logged in but no CHC account. Needs to sign up and onboard (consent included).',
+    steps:['pl-locked','ekyc-consent','ekyc-verify','tu-sms','pl-unlocked']
+  },
+  'S25':{
+    name:'S25/S26 — Guest, onboarded, consented',
+    desc:'Not logged in, has CHC + consented. Login \u2192 2FA \u2192 odds.',
+    steps:['pl-locked','mh-login','mh-otp','tu-sms','pl-unlocked']
+  },
+  'S27':{
+    name:'S27/S28 — Guest, onboarded, NOT consented',
+    desc:'Not logged in, has CHC but not consented. Login \u2192 2FA \u2192 consent \u2192 odds.',
+    steps:['pl-locked','mh-login','mh-otp','tu-sms','pl-consent','pl-unlocked']
+  },
+  'S32':{
+    name:'S32 — Guest, no CHC',
+    desc:'Not logged in, no CHC. Full journey: login \u2192 onboard (consent included) \u2192 odds.',
+    steps:['pl-locked','mh-login','mh-otp','ekyc-consent','ekyc-verify','tu-sms','pl-unlocked']
+  },
+  'happy':{
+    name:'Happy path — full CHC eKYC onboarding',
+    desc:'Complete CHC onboarding with consent included.',
+    steps:['ekyc-consent','ekyc-verify','tu-sms','pl-unlocked']
+  },
+  'unhappy':{
+    name:'Unhappy path — eKYC verification failure',
+    desc:'eKYC verification fails, case escalated to manual review.',
+    steps:['ekyc-consent','ekyc-verify','error','pl-locked']
+  }
+};
+
+let currentScenario='S1';
+let currentStepIndex=0;
+let devNotesVisible=false;
+
+function loadScenario(id){
+  currentScenario=id;
+  currentStepIndex=0;
+  document.getElementById('scenario-picker').value=id;
+  renderStepPills();
+  showStep(0);
+}
+
+function renderStepPills(){
+  const sc=scenarios[currentScenario];
+  const container=document.getElementById('step-pills');
+  container.innerHTML=sc.steps.map(function(step,i){
+    const meta=stepMeta[step];
+    const shortLabel=meta.title.substring(0,30);
+    return '<button class="step-pill'+(i===currentStepIndex?' active':'')+'" onclick="showStep('+i+')">'+(i+1)+'. '+shortLabel+'</button>';
+  }).join('');
+}
+
+function showStep(index){
+  const sc=scenarios[currentScenario];
+  if(index<0||index>=sc.steps.length) return;
+  currentStepIndex=index;
+  const stepId=sc.steps[index];
+  const meta=stepMeta[stepId];
+
+  // Hide all screens, show target
+  document.querySelectorAll('.screen').forEach(function(el){el.classList.remove('active')});
+  const target=document.getElementById('screen-'+stepId);
+  if(target) target.classList.add('active');
+
+  // Update step info
+  document.getElementById('step-num').textContent=index+1;
+  document.getElementById('step-title').textContent=meta.title;
+  document.getElementById('step-desc').textContent=sc.desc||meta.desc;
+
+  // Update pills
+  document.querySelectorAll('.step-pill').forEach(function(pill,i){
+    pill.classList.remove('active','completed');
+    if(i===index) pill.classList.add('active');
+    else if(i<index) pill.classList.add('completed');
+  });
+
+  // Update nav
+  document.getElementById('btn-prev').disabled=index===0;
+  var isLast=index===sc.steps.length-1;
+  document.getElementById('btn-next').disabled=isLast;
+  document.getElementById('btn-next').textContent=isLast?'End of flow':'Next \u2192';
+  document.getElementById('nav-counter').textContent=(index+1)+' / '+sc.steps.length;
+
+  // Dev notes
+  updateDevNotes();
+
+  // Update locked banner text dynamically
+  updateLockedBanner();
+
+  // Scroll to top
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goNext(){
+  const sc=scenarios[currentScenario];
+  if(currentStepIndex<sc.steps.length-1) showStep(currentStepIndex+1);
+}
+
+function goPrev(){
+  if(currentStepIndex>0) showStep(currentStepIndex-1);
+}
+
+// ── Lock Click Handler ──
+function handleLockClick(){
+  if(currentScenario==='S3') openConsent();
+  else goNext();
+}
+
+function handleLockedBannerClick(){
+  if(currentScenario==='S3') openConsent();
+  else goNext();
+}
+
+// ── Dynamic Locked Banner Text ──
+function updateLockedBanner(){
+  var title = document.getElementById('locked-banner-title');
+  var subtitle = document.getElementById('locked-banner-subtitle');
+  if(!title) return;
+
+  var texts = {
+    'S8':  {t:'完成 Credit Hero Club 開戶', s:'完成身份驗證以查看你的批核機會'},
+    'S9':  {t:'驗證你的 Credit Hero Club 帳戶', s:'透過 2FA 驗證以查看你的批核機會'},
+    'S11': {t:'驗證你的 Credit Hero Club 帳戶', s:'透過 2FA 驗證以查看你的批核機會'},
+    'S16': {t:'加入 Credit Hero Club', s:'免費註冊查看你獲批各產品的機率'},
+    'S25': {t:'登入查看你的批核機會', s:'登入 Credit Hero Club 以查看你的個人化批核機會'},
+    'S27': {t:'登入查看你的批核機會', s:'登入 Credit Hero Club 以查看你的個人化批核機會'},
+    'S32': {t:'登入查看你的批核機會', s:'登入或註冊 Credit Hero Club 以查看你獲批各產品的機率'},
+    'unhappy': {t:'登入查看你的批核機會', s:'登入或註冊 Credit Hero Club 以查看你獲批各產品的機率'}
+  };
+
+  var t = texts[currentScenario] || {t:'登入查看你的批核機會', s:'登入 Credit Hero Club 以查看你的個人化批核機會'};
+  title.textContent = t.t;
+  subtitle.textContent = t.s;
+}
+
+// ── Consent Flow ──
+function openConsent(){
+  document.getElementById('consent-overlay').classList.add('open');
+  document.getElementById('consent-modal').style.display='block';
+  document.body.style.overflow='hidden';
+  document.getElementById('consent-check').checked=false;
+  updateConsentBtn();
+}
+function closeConsent(){
+  document.getElementById('consent-overlay').classList.remove('open');
+  document.getElementById('consent-modal').style.display='none';
+  document.body.style.overflow='';
+}
+function updateConsentBtn(){
+  document.getElementById('consent-btn').disabled=!document.getElementById('consent-check').checked;
+}
+function grantConsent(){
+  closeConsent();
+  goNext();
+}
+
+// ── Dev Notes ──
+function toggleDevNotes(){
+  devNotesVisible=!devNotesVisible;
+  document.getElementById('dev-notes-toggle').textContent='Dev Notes: '+(devNotesVisible?'ON':'OFF');
+  document.getElementById('dev-notes-toggle').classList.toggle('active',devNotesVisible);
+  updateDevNotes();
+}
+function updateDevNotes(){
+  document.querySelectorAll('.dev-note').forEach(function(note){
+    note.classList.toggle('visible',devNotesVisible);
+  });
+}
+
+// ── Info Drawer ──
+function openDrawer(){
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('drawer').style.display='block';
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(){
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('drawer').style.display='none';
+  document.body.style.overflow='';
+}
+
+// ── Floating Tooltip ──
+function showTooltip(e){
+  var tip=document.getElementById('floating-tooltip');
+  var rect=e.target.getBoundingClientRect();
+  tip.style.display='block';
+  tip.style.left=Math.max(8,Math.min(window.innerWidth-268,rect.left+rect.width/2-130))+'px';
+  tip.style.top=(rect.top-tip.offsetHeight-10)+'px';
+}
+function hideTooltip(){
+  document.getElementById('floating-tooltip').style.display='none';
+}
+
+// ── Keyboard Navigation ──
+document.addEventListener('keydown',function(e){
+  if(document.getElementById('password-gate').classList.contains('hidden')){
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();goNext();}
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();goPrev();}
+  }
+});
+</script>
+</body>
+</html>
