@@ -303,9 +303,8 @@
   .consent-body h3{font-size:18px;font-weight:700;color:#222;margin-bottom:8px}
   .consent-body .consent-desc{font-size:13px;color:#555;line-height:1.6;margin-bottom:20px}
   .consent-features{list-style:none;padding:0;margin:0 0 20px}
-  .consent-features li{font-size:13px;color:#444;line-height:1.6;padding:8px 0;border-bottom:1px solid #f0f0f0;padding-left:28px;position:relative}
-  .consent-features li::before{content:'\2713';position:absolute;left:0;color:#00b7b2;font-weight:700;font-size:14px}
-  .consent-features li:last-child{border-bottom:none}
+  .consent-features li{font-size:13px;color:#444;line-height:1.6;padding:10px 0;border-bottom:none;padding-left:32px;position:relative}
+  .consent-features li::before{content:'\2606';position:absolute;left:6px;color:#b8860b;font-weight:700;font-size:16px}
   .consent-disclaimer{padding:14px;background:#f8f9fa;border-radius:10px;font-size:11px;color:#888;line-height:1.6;margin-bottom:20px}
   .consent-disclaimer strong{color:#555}
   .consent-checkbox{display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;font-size:12px;color:#555;line-height:1.5}
@@ -822,29 +821,33 @@
   <button class="nav-btn primary" id="btn-next" onclick="goNext()">Next &#8594;</button>
 </div>
 
-<!-- ══ CONSENT MODAL (v3 — for on-page consent) ══ -->
+<!-- ══ CONSENT MODAL (matching design spec) ══ -->
 <div class="consent-overlay" id="consent-overlay" onclick="closeConsent()"></div>
 <div class="consent-modal" id="consent-modal" style="display:none">
   <div class="consent-handle"></div>
   <button class="consent-close" onclick="closeConsent()">&#10005;</button>
   <div class="consent-body">
-    <h3>&#128274; 查看你的批核機會</h3>
-    <p class="consent-desc">我們可根據你的 TransUnion 信貸資料，顯示你獲批各產品的機率。</p>
-    <ul class="consent-features">
-      <li>查看每個產品的<strong>高 / 中 / 低</strong>批核機會</li>
-      <li>所有產品仍會顯示 — 不會隱藏或篩選任何產品</li>
-      <li>批核機會<strong>僅供參考</strong>，並不保證批核結果</li>
-      <li>你的信貸資料不會與貸款機構或第三方共享</li>
+    <h3 style="font-size:20px;margin-bottom:6px">See Your Approval Odds</h3>
+    <p class="consent-desc" style="margin-bottom:24px">Based on your TransUnion credit data</p>
+    <ul class="consent-features" style="margin-bottom:24px">
+      <li style="padding-left:32px">&#9734; Instantly see your chances (<strong style="color:#b8860b">High, Medium, or Low</strong>) for every product</li>
+      <li style="padding-left:32px">&#9734; Your credit data <strong style="text-decoration:underline">stays private</strong> and is never shared with lenders or third parties</li>
+      <li style="padding-left:32px">&#9734; Personalised insights to help you make better-informed decisions</li>
     </ul>
-    <div class="consent-disclaimer">
-      <strong>運作方式：</strong>你現有的 TransUnion 信貸檔案（已為你的信貸報告而取得）將與產品一般要求進行比對，以產生批核機會指標。不會額外存取信貸資料。
+    <div style="border:1px solid #e0e0e0;border-radius:8px;margin-bottom:20px">
+      <div onclick="toggleConsentAccordion(this)" style="padding:12px 16px;font-size:14px;font-weight:600;color:#333;cursor:pointer;display:flex;justify-content:space-between;align-items:center">How do approval odds work? <span style="font-size:12px;color:#999;transition:transform .2s" id="consent-acc-arrow">&#9660;</span></div>
+      <div id="consent-acc-body" style="display:none;padding:0 16px 14px;font-size:12px;color:#555;line-height:1.7">
+        Your existing TransUnion credit profile is compared against general product requirements to generate an approval odds indicator. No additional credit data access is required. Approval odds are estimates only — they do not guarantee approval or rejection. Final decisions rest with the lender.
+      </div>
     </div>
-    <div class="consent-checkbox">
+    <div class="consent-checkbox" style="margin-bottom:24px">
       <input type="checkbox" id="consent-check" onchange="updateConsentBtn()">
-      <label for="consent-check">我了解批核機會僅供參考，並同意使用我的信貸資料在此頁面顯示批核機會指標。</label>
+      <label for="consent-check">I understand that approval odds are informational only and consent to my credit data being used to display approval likelihood indicators.</label>
     </div>
-    <button class="consent-btn" id="consent-btn" disabled onclick="grantConsent()">顯示我的批核機會</button>
-    <button class="consent-btn-skip" onclick="closeConsent()">暫時不需要</button>
+    <div style="display:flex;gap:12px">
+      <button onclick="closeConsent()" style="flex:1;padding:14px;border:1.5px solid #d0d0d0;border-radius:10px;background:#fff;color:#333;font-size:15px;font-weight:600;cursor:pointer">Not Now</button>
+      <button class="consent-btn" id="consent-btn" disabled onclick="grantConsent()" style="flex:1;padding:14px;border-radius:10px;border:none;background:#00b7b2;color:#fff;font-size:15px;font-weight:700;cursor:pointer">Proceed</button>
+    </div>
   </div>
 </div>
 
@@ -1075,12 +1078,12 @@ const scenarios={
   },
   'S27':{
     name:'S27/S28 — Guest, onboarded, NOT consented',
-    desc:'Not logged in, has CHC but not consented. Login \u2192 2FA \u2192 consent \u2192 odds.',
-    steps:['pl-locked','mh-login','mh-otp','tu-sms','pl-consent','pl-unlocked']
+    desc:'Not logged in, has CHC but not consented. Consent modal on PL page \u2192 login \u2192 2FA \u2192 odds.',
+    steps:['pl-locked','mh-login','mh-otp','tu-sms','pl-unlocked']
   },
   'S32':{
     name:'S32 — Guest, no CHC',
-    desc:'Not logged in, no CHC. Full journey: login \u2192 onboard (consent included) \u2192 odds.',
+    desc:'Not logged in, no CHC. Consent modal on PL page \u2192 login \u2192 onboard \u2192 odds.',
     steps:['pl-locked','mh-login','mh-otp','ekyc-consent','ekyc-verify','tu-sms','pl-unlocked']
   },
   'happy':{
@@ -1168,13 +1171,16 @@ function goPrev(){
 }
 
 // ── Lock Click Handler ──
+// S3: consent modal on pl-consent screen (already logged in)
+// S27, S32: consent modal on pl-locked screen (guest, before login)
+var consentScenarios=['S3','S27','S32'];
 function handleLockClick(){
-  if(currentScenario==='S3') openConsent();
+  if(consentScenarios.indexOf(currentScenario)!==-1) openConsent();
   else goNext();
 }
 
 function handleLockedBannerClick(){
-  if(currentScenario==='S3') openConsent();
+  if(consentScenarios.indexOf(currentScenario)!==-1) openConsent();
   else goNext();
 }
 
@@ -1219,6 +1225,12 @@ function updateConsentBtn(){
 function grantConsent(){
   closeConsent();
   goNext();
+}
+function toggleConsentAccordion(el){
+  var body=document.getElementById('consent-acc-body');
+  var arrow=document.getElementById('consent-acc-arrow');
+  if(body.style.display==='none'){body.style.display='block';arrow.style.transform='rotate(180deg)';}
+  else{body.style.display='none';arrow.style.transform='';}
 }
 
 // ── Dev Notes ──
