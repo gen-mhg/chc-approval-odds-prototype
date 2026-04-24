@@ -327,8 +327,42 @@
   .drawer-body .odds-explain .oe-badge{flex-shrink:0;width:70px}
   .drawer-body .odds-explain .oe-text{font-size:13px;color:#555;line-height:1.5}
   .drawer-body .odds-explain .oe-text strong{color:#222}
-  .drawer-disclaimer{margin-top:16px;padding:14px;background:#f8f9fa;border-radius:10px;font-size:11px;color:#888;line-height:1.6}
+  .drawer-disclaimer{margin-top:20px;padding:14px;background:#f8f9fa;border-radius:10px;font-size:11px;color:#888;line-height:1.6}
   .drawer-disclaimer strong{color:#555}
+  .drawer-disclaimer a{color:#666;text-decoration:underline}
+
+  /* ── Drawer: Redesigned (matching reference design) ── */
+  .drawer-hero{text-align:center;padding:8px 0 24px;border-bottom:1px solid #f0f0f0;margin-bottom:20px}
+  .drawer-hero-title{font-size:20px;font-weight:800;color:#222;margin-bottom:16px;line-height:1.3}
+  .drawer-hero-desc{font-size:14px;color:#555;line-height:1.6;max-width:300px;margin:0 auto}
+
+  /* Tier cards */
+  .tier-card{background:#fff;border:1px solid #eee;border-radius:14px;padding:20px;margin-bottom:14px;transition:box-shadow .15s}
+  .tier-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06)}
+  .tier-card-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .tier-card-badge{flex-shrink:0}
+  .tier-card-badge .odds-badge{font-size:13px;padding:5px 14px}
+  .tier-card-title{font-size:15px;font-weight:700;color:#222}
+  .tier-card-body{font-size:13px;color:#555;line-height:1.6}
+
+  /* How it works section */
+  .drawer-how{margin-top:20px;margin-bottom:20px}
+  .drawer-section-title{font-size:15px;font-weight:700;color:#222;margin-bottom:10px}
+  .drawer-how-text{font-size:13px;color:#555;line-height:1.7}
+
+  /* Refresh section */
+  .drawer-refresh{border-radius:14px;padding:20px;margin-top:20px;text-align:center}
+  .drawer-refresh.expired{background:#fffbeb;border:1px solid #fde68a}
+  .drawer-refresh.fresh{background:#e6f9f0;border:1px solid #b2ecd3}
+  .drawer-refresh-title{font-size:14px;font-weight:700;margin-bottom:4px}
+  .drawer-refresh.expired .drawer-refresh-title{color:#92400e}
+  .drawer-refresh.fresh .drawer-refresh-title{color:#166534}
+  .drawer-refresh-date{font-size:13px;margin-bottom:14px}
+  .drawer-refresh.expired .drawer-refresh-date{color:#a16207}
+  .drawer-refresh.fresh .drawer-refresh-date{color:#166534}
+  .drawer-refresh-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:10px;border:none;background:#e67e00;color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s}
+  .drawer-refresh-btn:hover{background:#cc6e00}
+  .drawer-refresh-note{font-size:11px;color:#a16207;margin-top:10px}
 
   /* ── Floating Tooltip ── */
   .floating-tooltip{display:none;position:fixed;background:#333;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:400;width:260px;line-height:1.5;white-space:normal;z-index:9000;box-shadow:0 4px 12px rgba(0,0,0,.2);pointer-events:none}
@@ -368,11 +402,14 @@
         <option value="S1">S1 — MH &#9989; CHC &#9989; Onboarded &#9989; Consented &#9989; Fresh &#9989;</option>
         <option value="S9">S9 — MH &#9989; Onboarded &#9989; Consented &#9989; Fresh &#9989; (backend fetch)</option>
       </optgroup>
-      <optgroup label="Logged in — locked odds (S3, S8, S10, S11, S16)">
+      <optgroup label="Expired — stale odds visible (S10, S12)">
+        <option value="S10">S10 — MH &#9989; Onboarded &#9989; Consented &#9989; Fresh &#10060; (stale odds + refresh)</option>
+        <option value="S12">S12 — MH &#9989; Onboarded &#9989; Consented &#10060; Fresh &#10060; (consent &#8594; stale odds)</option>
+      </optgroup>
+      <optgroup label="Logged in — locked odds (S3, S8, S11, S16)">
         <option value="S3">S3 — MH &#9989; CHC &#9989; Onboarded &#9989; Consented &#10060; (consent modal)</option>
         <option value="S8">S8 — MH &#9989; CHC &#9989; Onboarded &#10060; (complete onboarding)</option>
-        <option value="S10">S10 — MH &#9989; Onboarded &#9989; Consented &#9989; Fresh &#10060; (needs 2FA)</option>
-        <option value="S11">S11/S12 — MH &#9989; Onboarded &#9989; Consented &#10060; (needs 2FA &#8594; consent)</option>
+        <option value="S11">S11 — MH &#9989; Onboarded &#9989; Consented &#10060; Fresh &#9989; (consent &#8594; odds)</option>
         <option value="S16">S16 — MH &#9989; No CHC (sign up + onboard)</option>
       </optgroup>
       <optgroup label="Guest — locked odds (S25, S27, S32)">
@@ -468,6 +505,64 @@
         <div id="pl-unlocked-products"></div>
       </div></div>
       <div class="cards-section"><div class="cards-section-title">產品詳情 <span class="count-badge" id="unlocked-card-count">8</span></div><div id="pl-unlocked-cards"></div></div>
+    </div>
+    <div class="footer"><p>Prototype — PL Result Page v3 | MoneyHero HK | 2026-04-07</p></div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <!-- ── PL PAGE: EXPIRED (stale odds visible — "last updated + refresh" below table) ── -->
+  <!-- ═════════════════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-pl-expired">
+    <div class="site-header">
+      <div class="hamburger">&#9776;</div>
+      <img class="logo-img" src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="MoneyHero">
+      <div class="header-nav">
+        <a href="#">信用卡</a>
+        <a href="#" class="active-link">私人貸款</a>
+        <a href="#">保險</a>
+        <a href="#">按揭</a>
+        <a href="#">銀行戶口</a>
+      </div>
+      <div class="user-icon">&#128100;</div>
+    </div>
+    <div class="breadcrumb">
+      <a href="#">&#127968; 首頁</a><span>/</span><a href="#">私人貸款</a><span>/</span>【借貸2026】即睇特快批核私人貸款利息及...
+    </div>
+    <div class="page-heading">
+      <h1>【借貸2026】即睇特快批核私人貸款利息及借錢優惠</h1>
+      <div class="updated-date">更新日期: 2026年4月7日</div>
+      <div class="description">私人貸款（P Loan）及低息貸款比較：私人貸款邊間好？貸款優惠 / 利息 / 利率貸款比較 | 私人貸...<span class="show-more">顯示更多</span></div>
+    </div>
+    <div class="container">
+      <div class="why-mh">
+        <img src="https://mhgprod.blob.core.windows.net/moneyhero/strapi-uploads/1_moneyhero_dbd2868f87.svg" alt="" style="width:28px;height:28px;border-radius:50%;object-fit:contain;background:#fff;border:1px solid #eee;padding:2px">
+        為什麼透過 MoneyHero 申請貸款？
+        <span class="arrow">&#9660;</span>
+      </div>
+      <div class="dev-note" data-note="pl-expired">EXPIRED state — user has consented and is onboarded, but credit data is &gt;24hrs old. Shows stale approval odds from stored derived credit data. "Last updated + Refresh" line below the product table. Clicking Refresh triggers TU SMS 2FA (CH-618).</div>
+      <div class="tabs">
+        <div class="tab active">全部貸款</div><div class="tab">&#128196; 稅季貸款</div><div class="tab">&#11088; 精選貸款</div><div class="tab">&#127974; 財務公司</div><div class="tab">&#127970; 銀行貸款</div><div class="tab">結餘轉戶</div><div class="tab">低息貸款</div>
+      </div>
+      <div class="quick-summary"><span>+</span>「快速摘要」</div>
+      <div class="calc-row">
+        <div class="calc-field"><label>貸款額 (HK$) <span class="info-sm">i</span></label><input type="text" value="200,000" readonly></div>
+        <div class="calc-field"><label>還款期 (月) <span class="info-sm">i</span></label><input type="text" value="24" readonly></div>
+      </div>
+      <div class="results-info">顯示 <strong>8</strong> 個貸款產品</div>
+      <div class="product-table"><div class="product-table-inner">
+        <div class="table-header">
+          <div>銀行 / 財務公司</div>
+          <div class="col-odds-header">批核機會 <span class="tooltip-trigger" onmouseenter="showTooltip(event)" onmouseleave="hideTooltip()" onclick="openDrawer()">&#9432;</span></div>
+          <div>實際年利率</div>
+          <div>每月還款</div>
+          <div>總利息支出</div>
+          <div>MoneyHero 獨家</div>
+          <div></div>
+        </div>
+        <div id="pl-expired-products"></div>
+      </div></div>
+      <div class="results-info" style="text-align:center;padding:6px 0;font-size:13px">Approval Odds Updated 16 Apr 2026 · <span style="color:#00b7b2;font-weight:600;cursor:pointer;text-decoration:underline" onclick="goNext()">Refresh</span></div>
+      <div class="cards-section"><div class="cards-section-title">產品詳情 <span class="count-badge">8</span></div><div id="pl-expired-cards"></div></div>
     </div>
     <div class="footer"><p>Prototype — PL Result Page v3 | MoneyHero HK | 2026-04-07</p></div>
   </div>
@@ -848,29 +943,65 @@
   </div>
 </div>
 
-<!-- ══ INFO DRAWER ══ -->
+<!-- ══ INFO DRAWER (redesigned to match reference) ══ -->
 <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer" style="display:none">
   <div class="drawer-handle"></div>
   <button class="drawer-close" onclick="closeDrawer()">&#10005;</button>
   <div class="drawer-body">
-    <h3>甚麼是批核機會？</h3>
-    <p style="font-size:13px;color:#555;line-height:1.6;margin-bottom:16px">批核機會根據你的 TransUnion 信貸檔案與歷史申請數據比對，顯示你獲批某產品的大概機率。</p>
-    <div class="odds-explain">
-      <div class="oe-badge"><span class="odds-badge high">高 High</span></div>
-      <div class="oe-text"><strong>機會較高。</strong>你的信貸檔案符合該產品大部分或全部一般要求。</div>
+
+    <!-- Hero section -->
+    <div class="drawer-hero">
+      <div class="drawer-hero-title">Your Chance of Approval</div>
+      <div class="drawer-hero-desc">See how likely you are to be approved for each product, based on your credit profile.</div>
     </div>
-    <div class="odds-explain">
-      <div class="oe-badge"><span class="odds-badge medium">中 Med</span></div>
-      <div class="oe-text"><strong>機會中等。</strong>你的信貸檔案符合部分但非全部一般要求。</div>
+
+    <!-- Last updated + Refresh (moved to top) -->
+    <div class="drawer-refresh" id="drawer-refresh">
+      <div class="drawer-refresh-title" id="drawer-refresh-title"></div>
+      <div class="drawer-refresh-date" id="drawer-refresh-date"></div>
+      <button class="drawer-refresh-btn" id="drawer-refresh-btn" onclick="handleDrawerRefresh()" style="display:none">&#8635; Update My Credit Data</button>
+      <div class="drawer-refresh-note" id="drawer-refresh-note" style="display:none">Requires SMS verification via TransUnion (~1 min)</div>
     </div>
-    <div class="odds-explain">
-      <div class="oe-badge"><span class="odds-badge low">低 Low</span></div>
-      <div class="oe-text"><strong>機會較低。</strong>你的信貸檔案可能未符合該產品的一般要求。</div>
+
+    <!-- High tier -->
+    <div class="tier-card" style="border-color:#b2ecd3;background:#fafffe">
+      <div class="tier-card-header">
+        <div class="tier-card-badge"><span class="odds-badge high">高 High</span></div>
+        <div class="tier-card-title">Good chance</div>
+      </div>
+      <div class="tier-card-body">Your credit profile meets most or all of the general requirements for this product. Applying for products with high approval odds helps you avoid unnecessary hard enquiries on your credit report.</div>
     </div>
+
+    <!-- Medium tier -->
+    <div class="tier-card" style="border-color:#fde68a;background:#fffefb">
+      <div class="tier-card-header">
+        <div class="tier-card-badge"><span class="odds-badge medium">中 Med</span></div>
+        <div class="tier-card-title">Fair chance</div>
+      </div>
+      <div class="tier-card-body">Your credit profile meets some but not all of the general requirements. You may still be approved, but there is a higher chance of rejection compared to products rated High.</div>
+    </div>
+
+    <!-- Low tier -->
+    <div class="tier-card" style="border-color:#fecaca;background:#fffbfb">
+      <div class="tier-card-header">
+        <div class="tier-card-badge"><span class="odds-badge low">低 Low</span></div>
+        <div class="tier-card-title">Lower chance</div>
+      </div>
+      <div class="tier-card-body">Your credit profile may not meet the general requirements for this product. Applying may result in a hard enquiry on your credit report without a successful outcome.</div>
+    </div>
+
+    <!-- How it works -->
+    <div class="drawer-how">
+      <div class="drawer-section-title">How are approval odds determined?</div>
+      <div class="drawer-how-text">Your approval odds are based on comparing your TransUnion credit profile against each product's general eligibility criteria. Odds are calculated using your most recent credit data. To get the latest odds, refresh your credit data or check your credit profile via Credit Hero Club. Your credit data is never shared with lenders.</div>
+    </div>
+
+    <!-- Disclaimer -->
     <div class="drawer-disclaimer">
-      <strong>重要事項：</strong>批核機會僅供參考，並不保證批核或拒絕。最終決定權在貸款機構。申請批核機會較高的產品有助減少不必要的「硬性查詢」，這些查詢可能會暫時降低你的信貸評分。
+      <strong>Important:</strong> Approval odds are estimates only and do not guarantee approval or rejection. Final lending decisions are made solely by the product provider. Applying for products with higher approval odds can help reduce unnecessary hard enquiries, which may temporarily lower your credit score. View full <a href="#">terms and conditions</a>.
     </div>
+
   </div>
 </div>
 
@@ -920,7 +1051,9 @@ function renderProductRow(p, mode){
   const labels={high:'高',medium:'中',low:'低'};
   var oddsHTML='';
   if(mode==='unlocked'){
-    oddsHTML='<span class="odds-badge odds-revealed '+p.odds+'">'+labels[p.odds]+'</span>';
+    oddsHTML='<span class="odds-badge odds-revealed '+p.odds+'" onclick="openDrawer()" style="cursor:pointer">'+labels[p.odds]+'</span>';
+  } else if(mode==='expired'){
+    oddsHTML='<span class="odds-badge odds-revealed '+p.odds+'" onclick="openDrawer()" style="cursor:pointer;opacity:0.45">'+labels[p.odds]+'</span>';
   } else {
     oddsHTML='<span class="tbl-odds-lock" onclick="handleLockClick()">&#128274; 解鎖</span>';
   }
@@ -947,10 +1080,16 @@ function renderProductCard(p, mode){
   const labels={high:'高',medium:'中',low:'低'};
   var oddsHTML='';
   if(mode==='unlocked'){
-    oddsHTML='<div class="card-odds-banner">'+
-      '<span class="cob-label">批核機會 <span class="info-icon tooltip-trigger" onclick="openDrawer()">&#9432;</span></span>'+
+    oddsHTML='<div class="card-odds-banner" onclick="openDrawer()" style="cursor:pointer">'+
+      '<span class="cob-label">批核機會 <span class="info-icon tooltip-trigger">&#9432;</span></span>'+
       '<span class="cob-badge"><span class="odds-badge odds-revealed '+p.odds+'">'+labels[p.odds]+'</span></span>'+
-      '<span class="cob-meta">更新：2026年4月7日</span>'+
+      '<span class="cob-meta">更新：2026年4月24日</span>'+
+    '</div>';
+  } else if(mode==='expired'){
+    oddsHTML='<div class="card-odds-banner" onclick="openDrawer()" style="cursor:pointer">'+
+      '<span class="cob-label">批核機會 <span class="info-icon tooltip-trigger">&#9432;</span></span>'+
+      '<span class="cob-badge"><span class="odds-badge odds-revealed '+p.odds+'" style="opacity:0.45">'+labels[p.odds]+'</span></span>'+
+      '<span class="cob-meta" style="color:#a16207">16 Apr 2026</span>'+
     '</div>';
   } else {
     oddsHTML='<div class="card-odds-locked" onclick="handleLockClick()">'+
@@ -1007,8 +1146,7 @@ function toggleCardAccordion(header){
 
 // ── Render All Products (tables + cards for all 3 states) ──
 function renderAllProducts(){
-  ['unlocked','consent','locked'].forEach(function(mode){
-    // consent and locked both render lock icons — use same render mode
+  ['unlocked','consent','locked','expired'].forEach(function(mode){
     var tableEl=document.getElementById('pl-'+mode+'-products');
     var cardsEl=document.getElementById('pl-'+mode+'-cards');
     if(tableEl) tableEl.innerHTML=products.map(function(p){return renderProductRow(p,mode)}).join('');
@@ -1021,6 +1159,7 @@ function renderAllProducts(){
 // ══════════════════════════════════════
 const stepMeta={
   'pl-unlocked':  {title:'PL Page (Up-to-date — show odds)', desc:'User has consented — sees personalised Credit Odds'},
+  'pl-expired':   {title:'PL Page (Expired — stale odds)', desc:'Stale odds shown from stored derived credit data. Refresh below table.'},
   'pl-locked':    {title:'PL Page (Locked odds)', desc:'Odds locked — user needs to consent, authenticate, or onboard'},
   'mh-login':     {title:'MH Login / Sign Up', desc:'CHC/MH unified login page (Keycloak)'},
   'mh-otp':       {title:'MH Email OTP', desc:'Enter 6-digit verification code sent to email'},
@@ -1053,13 +1192,18 @@ const scenarios={
   },
   'S10':{
     name:'S10 — MH logged in, onboarded, consented, expired',
-    desc:'MH logged in, CHC onboarded + consented but report expired. Needs 2FA to refresh.',
-    steps:['pl-locked','tu-sms','pl-unlocked']
+    desc:'MH logged in, CHC onboarded + consented but credit data expired. Shows stale odds immediately. Refresh \u2192 2FA \u2192 fresh odds.',
+    steps:['pl-expired','tu-sms','pl-unlocked']
   },
   'S11':{
-    name:'S11/S12 — MH logged in, onboarded, NOT consented',
-    desc:'MH logged in, CHC onboarded but not consented. 2FA \u2192 consent (S3) \u2192 odds.',
-    steps:['pl-locked','tu-sms','pl-locked','pl-unlocked']
+    name:'S11 — MH logged in, onboarded, NOT consented, fresh',
+    desc:'MH logged in, CHC onboarded, fresh data, but not consented. Consent \u2192 up-to-date odds.',
+    steps:['pl-locked','pl-unlocked']
+  },
+  'S12':{
+    name:'S12 — MH logged in, onboarded, NOT consented, expired',
+    desc:'MH logged in, CHC onboarded but not consented + credit data expired. Consent \u2192 stale odds \u2192 Refresh \u2192 2FA \u2192 fresh odds.',
+    steps:['pl-locked','pl-expired','tu-sms','pl-unlocked']
   },
   'S16':{
     name:'S16 — MH logged in, no CHC',
@@ -1183,9 +1327,10 @@ function updateLockedBanner(){
   if(!title) return;
 
   var texts = {
+    'S3':  {t:'解鎖你的批核機會', s:'同意使用你的信貸資料以查看個人化批核機會'},
     'S8':  {t:'完成 Credit Hero Club 開戶', s:'完成身份驗證以查看你的批核機會'},
-    'S10': {t:'驗證你的 Credit Hero Club 帳戶', s:'透過 2FA 驗證以查看你的批核機會'},
-    'S11': {t:'驗證你的 Credit Hero Club 帳戶', s:'透過 2FA 驗證以查看你的批核機會'},
+    'S11': {t:'解鎖你的批核機會', s:'同意使用你的信貸資料以查看個人化批核機會'},
+    'S12': {t:'解鎖你的批核機會', s:'同意使用你的信貸資料以查看個人化批核機會'},
     'S16': {t:'加入 Credit Hero Club', s:'免費註冊查看你獲批各產品的機率'},
     'S25': {t:'登入查看你的批核機會', s:'登入 Credit Hero Club 以查看你的個人化批核機會'},
     'S27': {t:'登入查看你的批核機會', s:'登入 Credit Hero Club 以查看你的個人化批核機會'},
@@ -1243,11 +1388,45 @@ function openDrawer(){
   document.getElementById('drawer-overlay').classList.add('open');
   document.getElementById('drawer').style.display='block';
   document.body.style.overflow='hidden';
+  updateDrawerRefreshState();
 }
 function closeDrawer(){
   document.getElementById('drawer-overlay').classList.remove('open');
   document.getElementById('drawer').style.display='none';
   document.body.style.overflow='';
+}
+function updateDrawerRefreshState(){
+  var section=document.getElementById('drawer-refresh');
+  var title=document.getElementById('drawer-refresh-title');
+  var date=document.getElementById('drawer-refresh-date');
+  var btn=document.getElementById('drawer-refresh-btn');
+  var note=document.getElementById('drawer-refresh-note');
+  // Determine state from scenario + current step
+  var sc=scenarios[currentScenario];
+  var currentStepId=sc.steps[currentStepIndex];
+  var isExpired=(currentStepId==='pl-expired');
+  var isFresh=(currentStepId==='pl-unlocked');
+  if(isExpired){
+    section.className='drawer-refresh expired';
+    title.textContent='Your credit data is out of date';
+    date.innerHTML='Last updated: <strong>16 Apr 2026</strong>';
+    btn.style.display='inline-flex';
+    note.style.display='block';
+    section.style.display='block';
+  } else if(isFresh){
+    section.className='drawer-refresh fresh';
+    title.textContent='Your credit data is up to date';
+    date.innerHTML='Last updated: <strong>24 Apr 2026</strong>';
+    btn.style.display='none';
+    note.style.display='none';
+    section.style.display='block';
+  } else {
+    section.style.display='none';
+  }
+}
+function handleDrawerRefresh(){
+  closeDrawer();
+  goNext(); // navigate to next step in the scenario (TU SMS)
 }
 
 // ── Floating Tooltip ──
