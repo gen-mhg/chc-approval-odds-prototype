@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en" class="brand-moneyhero">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Approval Odds — Explanation Drawer (EN / 中, with Not Available state)</title>
+
+<!-- MHG Alpha Design System tokens (authoritative source per CLAUDE.md) -->
+<link rel="stylesheet" href="tokens.css">
+
+<style>
+  /* ============================================================
+     Local aliases mapped to the MHG Alpha foundation tokens
+     (--mh-*, loaded above from Moneyhero Design System/tokens.css).
+     Hardcoded values are fallbacks only — the --mh-* var wins when
+     the stylesheet is present. Status colours (green/amber/red) are
+     NOT defined in the foundation file; they are sourced from the
+     CHC product palette, which the live drawer uses for the badges.
+     ============================================================ */
+  :root {
+    /* Fonts — from the design system */
+    --font-sans:    var(--mh-font-en, "Albert Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+    --font-sans-tc: var(--mh-font-zh, "Noto Sans TC", "PingFang HK", "Microsoft JhengHei", sans-serif);
+
+    /* Text — semantic tokens */
+    --text-primary:   var(--mh-text-primary,   #212121);  /* gray-900 */
+    --text-secondary: var(--mh-text-secondary, #616161);  /* gray-700 */
+    --text-muted:     var(--mh-gray-600,       #757575);
+
+    /* Brand + surfaces */
+    --brand-primary:      var(--mh-primary-500, #2257B8);
+    --fill-primary-light: var(--mh-primary-50,  #E7EBF6);
+    --borders-divider:    var(--mh-border-strong, #E0E0E0);  /* gray-300 */
+
+    /* Status colours — CHC product palette (no foundation token exists) */
+    --success-dark:   #33691e;
+    --success-bg:     #e8f5e9;
+    --warning-text:   #92400e;
+    --warning-bg:     #fff9c4;
+    --danger:         #dc2626;
+    --danger-bg:      #ffebee;
+
+    /* Neutral "-" badge — from the gray ramp */
+    --neutral-text:   var(--mh-gray-600, #757575);
+    --neutral-bg:     var(--mh-gray-100, #F5F5F5);
+
+    /* Radius + elevation — from the design system */
+    --r-pill:       var(--mh-radius-pill, 9999px);
+    --r-card:       var(--mh-radius-lg,   12px);
+    --shadow-modal: var(--mh-shadow-modal, 0 0 12px 0 rgba(0,0,0,0.15));
+  }
+
+  @import url("https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap");
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-sans);
+    background: #eef0f3;
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 12px;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Switch font when in Chinese */
+  html[lang="zh-Hant"] body, html[lang="zh-Hant"] #gate { font-family: var(--font-sans-tc); }
+
+  /* ---------- Password gate ---------- */
+  #gate {
+    position: fixed; inset: 0; z-index: 1000;
+    background: #eef0f3;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px; padding: 24px;
+  }
+  #gate h2 { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+  #gate input {
+    font-size: 16px;
+    padding: 12px 14px; border: 1px solid #cbd2dc; border-radius: 8px;
+    width: 100%; max-width: 280px;
+  }
+  #gate button {
+    font-size: 15px; font-weight: 600;
+    color: #fff; background: var(--brand-primary);
+    border: 0; border-radius: 8px; padding: 12px 24px; cursor: pointer;
+  }
+  #gate .err { color: var(--danger); font-size: 13px; min-height: 16px; }
+  .hidden { display: none !important; }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    position: fixed; top: 12px; left: 12px; z-index: 500;
+    display: flex; gap: 14px; align-items: center;
+    background: #fff; border: 1px solid #d6dbe3; border-radius: 8px;
+    padding: 6px 10px; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  .toolbar label { display: flex; gap: 6px; align-items: center; cursor: pointer; color: var(--text-secondary); }
+  .langswitch { display: inline-flex; border: 1px solid #cbd2dc; border-radius: 999px; overflow: hidden; }
+  .langswitch button {
+    border: 0; background: #fff; color: var(--text-secondary);
+    font-size: 13px; font-weight: 600; padding: 5px 14px; cursor: pointer;
+  }
+  .langswitch button.active { background: var(--brand-primary); color: #fff; }
+
+  /* ---------- Drawer ---------- */
+  .drawer {
+    background: #fff;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 14px;
+    box-shadow: var(--shadow-modal);
+    overflow: hidden;
+  }
+
+  .drawer__header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--borders-divider);
+  }
+  .drawer__title { font-size: var(--mh-fs-display-1, 20px); font-weight: 700; color: var(--text-primary); }
+  .drawer__close {
+    background: none; border: 0; cursor: pointer; padding: 4px;
+    color: var(--text-muted); font-size: 22px; line-height: 1;
+  }
+
+  .drawer__body { padding: 16px 20px 4px; }
+
+  /* Up-to-date banner */
+  .uptodate {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--fill-primary-light);
+    color: var(--brand-primary);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-weight: 700; font-size: var(--mh-fs-body-1, 16px);
+    margin-bottom: 6px;
+  }
+  .uptodate svg { flex: 0 0 auto; }
+
+  /* Each odds state row */
+  .state { padding: 18px 0; border-bottom: 1px solid var(--borders-divider); }
+  .state__head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    border-radius: var(--r-pill);
+    padding: 4px 12px;
+    font-size: var(--mh-fs-body-2, 14px); font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge .dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+
+  .badge--high   { background: var(--success-bg); color: var(--success-dark); }
+  .badge--high   .dot { background: var(--success-dark); }
+  .badge--medium { background: var(--warning-bg); color: var(--warning-text); }
+  .badge--medium .dot { background: #6b5300; }
+  .badge--low    { background: var(--danger-bg); color: var(--danger); }
+  .badge--low    .dot { background: var(--danger); }
+  .badge--na     { background: var(--neutral-bg); color: var(--neutral-text); }
+  .badge--na     .dot { background: var(--neutral-text); }
+
+  .state__label { font-size: var(--mh-fs-title-2, 16px); font-weight: 700; }
+  .state__label--high   { color: var(--success-dark); }
+  .state__label--medium { color: var(--warning-text); }
+  .state__label--low    { color: var(--danger); }
+  .state__label--na     { color: var(--text-secondary); }
+
+  .state__desc { font-size: var(--mh-fs-body-1, 16px); line-height: 1.55; color: var(--text-secondary); }
+
+  /* How it's determined */
+  .determined { padding: 18px 0; border-bottom: 1px solid var(--borders-divider); }
+  .determined h3 { font-size: var(--mh-fs-title-2, 16px); font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+  .determined p { font-size: var(--mh-fs-body-1, 16px); line-height: 1.55; color: var(--text-secondary); }
+
+  /* Footer disclaimer */
+  .disclaimer { padding: 16px 0 20px; }
+  .disclaimer .updated { font-size: var(--mh-fs-caption, 12px); color: var(--text-muted); margin-bottom: 8px; }
+  .disclaimer .fine { font-size: var(--mh-fs-caption, 12px); line-height: 1.55; color: var(--text-muted); }
+  .disclaimer .fine a { color: var(--text-muted); text-decoration: underline; }
+
+  /* ---------- Annotations (highlight what changed) ---------- */
+  /* Circle/ring around the new "-" Not Available section */
+  html.annotate #state-na {
+    position: relative;
+    outline: 2px dashed var(--danger);
+    outline-offset: 6px;
+    border-radius: 14px;
+  }
+  html.annotate #state-na::after {
+    content: "NEW";
+    position: absolute;
+    top: -12px; right: -4px;
+    background: var(--danger); color: #fff;
+    font-family: var(--font-sans);
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    padding: 2px 8px; border-radius: 999px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  }
+  /* Highlighter on the newly-added ZH terms link */
+  html.annotate[lang="zh-Hant"] #disclaimer-fine a {
+    background: #fff3a8;
+    color: var(--text-primary);
+    padding: 1px 3px;
+    border-radius: 3px;
+    box-shadow: 0 0 0 2px #ffd84d;
+  }
+  /* Note callout sits at bottom of the drawer when annotated + ZH */
+  .annot-note {
+    display: none;
+    margin: 4px 0 16px;
+    font-family: var(--font-sans);
+    font-size: 12px; line-height: 1.4;
+    color: var(--danger);
+  }
+  html.annotate[lang="zh-Hant"] .annot-note { display: block; }
+
+  @media (min-width: 768px) { .drawer { max-width: 460px; } }
+</style>
+</head>
+<body>
+
+<!-- Password gate -->
+<div id="gate">
+  <h2 data-i18n="gateTitle">Enter password</h2>
+  <input id="gate-input" type="password" placeholder="Password" autocomplete="off" />
+  <button id="gate-btn" data-i18n="gateBtn">View prototype</button>
+  <div class="err" id="gate-err"></div>
+</div>
+
+<main id="app" class="hidden">
+  <div class="toolbar">
+    <span class="langswitch">
+      <button id="lang-en" class="active">EN</button>
+      <button id="lang-zh">中</button>
+    </span>
+    <label><input type="checkbox" id="toggle-na" checked> <span data-i18n="toggleNa">Show “Not Available” state</span></label>
+    <label><input type="checkbox" id="toggle-annotate" checked> Highlight changes</label>
+  </div>
+
+  <section class="drawer" role="dialog" aria-label="Your Chance of Approval">
+    <header class="drawer__header">
+      <span class="drawer__title" data-i18n="title">Your Chance of Approval</span>
+      <button class="drawer__close" aria-label="Close">&times;</button>
+    </header>
+
+    <div class="drawer__body">
+      <div class="uptodate">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" fill="#2257b8"/>
+          <path d="M7 12.5l3 3 7-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span data-i18n="banner">Your Credit Data is Up to Date</span>
+      </div>
+
+      <!-- High -->
+      <div class="state">
+        <div class="state__head">
+          <span class="badge badge--high"><span class="dot"></span><span data-i18n="highBadge">High</span></span>
+          <span class="state__label state__label--high" data-i18n="highLabel">Good Chance</span>
+        </div>
+        <p class="state__desc" data-i18n="highDesc">Your credit profile meets most or all of this products general requirements.</p>
+      </div>
+
+      <!-- Medium -->
+      <div class="state">
+        <div class="state__head">
+          <span class="badge badge--medium"><span class="dot"></span><span data-i18n="medBadge">Medium</span></span>
+          <span class="state__label state__label--medium" data-i18n="medLabel">Fair Chance</span>
+        </div>
+        <p class="state__desc" data-i18n="medDesc">Your credit profile meets some but not all requirements. Approval is possible but not certain.</p>
+      </div>
+
+      <!-- Low -->
+      <div class="state">
+        <div class="state__head">
+          <span class="badge badge--low"><span class="dot"></span><span data-i18n="lowBadge">Low</span></span>
+          <span class="state__label state__label--low" data-i18n="lowLabel">Low Chance</span>
+        </div>
+        <p class="state__desc" data-i18n="lowDesc">Your credit profile may not meet this products general requirements. Applying may result in a hard enquiry without a successful outcome.</p>
+      </div>
+
+      <!-- NEW: Not Available -->
+      <div class="state" id="state-na">
+        <div class="state__head">
+          <span class="badge badge--na"><span class="dot"></span>-</span>
+          <span class="state__label state__label--na" data-i18n="naLabel">Not Available</span>
+        </div>
+        <p class="state__desc" data-i18n="naDesc">Approval odds are not available for this product yet. You can still apply as usual.</p>
+      </div>
+
+      <!-- How determined -->
+      <div class="determined">
+        <h3 data-i18n="detTitle">How are Approval Odds Determined?</h3>
+        <p data-i18n="detDesc">Odds are based on comparing your TransUnion credit profile with each products general requirements</p>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer">
+        <p class="updated" data-i18n="updated">Approval Odds Updated 17 Jun 2026</p>
+        <p class="fine" id="disclaimer-fine"></p>
+        <p class="annot-note">↑ 新增：查看完整條款及細則（與英文版「View full terms and conditions.」對齊）</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // ---------- i18n strings (copy matches the live drawer verbatim) ----------
+  var I18N = {
+    en: {
+      lang: "en",
+      gateTitle: "Enter password",
+      gateBtn: "View prototype",
+      gatePlaceholder: "Password",
+      gateErr: "Incorrect password",
+      toggleNa: "Show “Not Available” state",
+      title: "Your Chance of Approval",
+      banner: "Your Credit Data is Up to Date",
+      highBadge: "High",  highLabel: "Good Chance",
+      highDesc: "Your credit profile meets most or all of this products general requirements.",
+      medBadge: "Medium", medLabel: "Fair Chance",
+      medDesc: "Your credit profile meets some but not all requirements. Approval is possible but not certain.",
+      lowBadge: "Low",    lowLabel: "Low Chance",
+      lowDesc: "Your credit profile may not meet this products general requirements. Applying may result in a hard enquiry without a successful outcome.",
+      naLabel: "Not Available",
+      naDesc: "Approval odds are not available for this product yet. You can still apply as usual.",
+      detTitle: "How are Approval Odds Determined?",
+      detDesc: "Odds are based on comparing your TransUnion credit profile with each products general requirements",
+      updated: "Approval Odds Updated 17 Jun 2026",
+      // live EN has a "View full terms and conditions." link
+      fine: "Approval odds are estimates only and do not guarantee approval or rejection. Final decisions are made by the lender. <a href=\"#\">View full terms and conditions.</a>"
+    },
+    zh: {
+      lang: "zh-Hant",
+      gateTitle: "請輸入密碼",
+      gateBtn: "查看原型",
+      gatePlaceholder: "密碼",
+      gateErr: "密碼不正確",
+      toggleNa: "顯示「目前暫無」狀態",
+      title: "你的批核機會",
+      banner: "你的信貸資料已是最新",
+      highBadge: "高",  highLabel: "機會高",
+      highDesc: "你的信貸狀況符合此產品的大部分或全部一般要求。",
+      medBadge: "中",  medLabel: "機會一般",
+      medDesc: "你的信貸狀況符合部分要求，有機會獲批但並不確定。",
+      lowBadge: "低",  lowLabel: "機會低",
+      lowDesc: "你的信貸狀況可能未符合此產品的一般要求，申請或會產生硬性查詢而未能成功獲批。",
+      naLabel: "目前暫無",
+      naDesc: "此產品暫未提供批核機會。你仍可如常申請。",
+      detTitle: "批核機會如何釐定？",
+      detDesc: "批核機會根據你的環聯信貸資料與各產品的一般要求比對而成。",
+      updated: "批核機會更新日期：2026年6月17日",
+      // terms link added for parity with EN ("View full terms and conditions.")
+      fine: "批核機會僅為估算，並不保證獲批或被拒。最終決定由貸款機構作出。<a href=\"#\">查看完整條款及細則。</a>"
+    }
+  };
+
+  var current = "en";
+
+  function applyLang(code){
+    current = code;
+    var t = I18N[code];
+    document.documentElement.setAttribute("lang", t.lang);
+    document.querySelectorAll("[data-i18n]").forEach(function(el){
+      var key = el.getAttribute("data-i18n");
+      if (t[key] != null) el.textContent = t[key];
+    });
+    document.getElementById("disclaimer-fine").innerHTML = t.fine;
+    document.getElementById("gate-input").placeholder = t.gatePlaceholder;
+    document.getElementById("lang-en").classList.toggle("active", code === "en");
+    document.getElementById("lang-zh").classList.toggle("active", code === "zh");
+  }
+
+  document.getElementById("lang-en").addEventListener("click", function(){ applyLang("en"); });
+  document.getElementById("lang-zh").addEventListener("click", function(){ applyLang("zh"); });
+
+  // ---------- Password gate ----------
+  var PASSWORD = "chc-moneyhero";
+  var gate = document.getElementById("gate");
+  var app  = document.getElementById("app");
+  function unlock(){ gate.classList.add("hidden"); app.classList.remove("hidden"); }
+  if (sessionStorage.getItem("chc_unlocked") === "1") unlock();
+  function tryUnlock(){
+    var v = document.getElementById("gate-input").value;
+    if (v === PASSWORD){ sessionStorage.setItem("chc_unlocked","1"); unlock(); }
+    else document.getElementById("gate-err").textContent = I18N[current].gateErr;
+  }
+  document.getElementById("gate-btn").addEventListener("click", tryUnlock);
+  document.getElementById("gate-input").addEventListener("keydown", function(e){ if(e.key==="Enter") tryUnlock(); });
+
+  // ---------- NA toggle ----------
+  document.getElementById("toggle-na").addEventListener("change", function(e){
+    document.getElementById("state-na").style.display = e.target.checked ? "" : "none";
+  });
+
+  // ---------- Annotation toggle ----------
+  function applyAnnotate(on){
+    document.documentElement.classList.toggle("annotate", on);
+  }
+  document.getElementById("toggle-annotate").addEventListener("change", function(e){
+    applyAnnotate(e.target.checked);
+  });
+  applyAnnotate(true);
+
+  applyLang("en");
+</script>
+</body>
+</html>
